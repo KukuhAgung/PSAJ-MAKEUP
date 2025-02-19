@@ -16,6 +16,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title:
     "Linapalugongso | Makeup Artist",
+  icons: "./favicon.ico",
   description: "Spesialis Youth Makeup Artist di Purwokerto",
 };
 
@@ -26,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} dark:bg-gray-900 `}>
+      <body className={`${outfit.variable} dark:bg-gray-900`}>
         <ThemeProvider>
           <SidebarProvider>{children}</SidebarProvider>
         </ThemeProvider>

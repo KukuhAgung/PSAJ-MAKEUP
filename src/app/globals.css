@@ -391,3 +391,15 @@
   opacity: 0.8;
   cursor: grabbing; /* Changes the cursor to indicate dragging */
 }
+
+.mask-image {
+  mask-image: url("/images/shape/hero-shape.svg");
+  -webkit-mask-image: url("/images/shape/hero-shape.svg");
+  mask-size: cover;
+  -webkit-mask-size: cover;
+  mask-position: center;
+  -webkit-mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
+
