@@ -8,6 +8,8 @@ module.exports = {
   theme: {
     fontFamily: {
       outfit: ["Outfit", "sans-serif"],
+      jakarta: ["Plus Jakarta Sans", "sans-serif"],
+      header: ["Rozha One", "cursive"],
     },
     screens: {
       "2xsm": "375px",
@@ -17,6 +19,7 @@ module.exports = {
     },
     extend: {
       fontSize: {
+        "title-3xl": ["96px", "107%"],
         "title-2xl": ["72px", "90px"],
         "title-xl": ["60px", "72px"],
         "title-lg": ["48px", "60px"],
@@ -31,6 +34,20 @@ module.exports = {
         transparent: "transparent",
         white: "#FFFFFF",
         black: "#101828",
+        primary: {
+            25: "#FAEDED",
+            50: "#F5DADA",
+            100: "#EABBBB",
+            200: "#DC9393",
+            300: "#C66D6D",
+            400: "#AD5252",
+            500: "#894444",
+            600: "#6C3737",
+            700: "#512B2B",
+            800: "#3A2020",
+            900: "#291717",
+            950: "#170C0C",
+        },
         brand: {
           25: "#F2F7FF",
           50: "#ECF3FF",
