@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
 import {
@@ -7,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../molecules/table";
-import { ArrowDownIcon, EditIcon } from "@/icons";
+import { EditIcon } from "@/icons";
 import Badge from "../../molecules/badge/Badge";
 import { Dialog } from "@headlessui/react";
 

@@ -10,12 +10,14 @@ interface ButtonProps {
   disabled?: boolean; // Disabled state
   className?: string; // Disabled state
   transparent?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
 const Button: React.FC<ButtonProps> = ({
   children,
   size = "md",
   variant = "primary",
+  type,
   startIcon,
   endIcon,
   onClick,
@@ -39,6 +41,7 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
+      type={type}
       className={`relative inline-flex items-center justify-center font-medium gap-2 rounded-3xl transition ${className} ${
         sizeClasses[size]
       } ${variantClasses[variant]} ${

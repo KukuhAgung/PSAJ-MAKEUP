@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,31 +7,85 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Pelanggan {
-  id_pelanggan String   @id @default(uuid())
-  nama         String
-  email        String   @unique
-  telepon      String   @unique
-  alamat       String
-  transaksi    Transaksi[]
+model User {
+  id           Int           @id @default(autoincrement())
+  username     String
+  email        String        @unique
+  password     String?
+  phoneNumber  String?
+  image        String?
+  role         UserRole      @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  authProvider AuthProvider?
+  reviews      Review[]
+  transactions Transaction[]
 }
 
-model Produk {
-  id_produk   String   @id @default(uuid())
-  nama_produk String
-  harga       Decimal
-  stok        Int
-  deskripsi   String?
-  transaksi   Transaksi[]
+model AuthProvider {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  provider       String
+  providerUserId String   @unique
+  email          String?
+  accessToken    String?
+  refreshToken   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
 }
 
-model Transaksi {
-  id_transaksi  String   @id @default(uuid())
-  id_pelanggan  String
-  id_produk     String
-  tanggal       DateTime @default(now())
-  total_harga   Decimal
+model Product {
+  id               Int              @id @default(autoincrement())
+  productName      String
+  category         String?
+  description      String?
+  specialTreatment String?
+  productServices  ProductService[]
+  Transaction      Transaction[]
+}
 
-  pelanggan  Pelanggan @relation(fields: [id_pelanggan], references: [id_pelanggan], onDelete: Cascade)
-  produk     Produk    @relation(fields: [id_produk], references: [id_produk], onDelete: Cascade)
+model ProductService {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  feature   String?
+  pricelist Int?
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  productId  Int
+  totalPrice Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Review     Review[]
+  product    Product  @relation(fields: [productId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+}
+
+model Review {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  transactionId Int
+  stars         StarRating
+  comment       String?
+  anonym        Boolean
+  createdAt     DateTime    @default(now())
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum StarRating {
+  ONE
+  TWO
+  THREE
+  FOUR
+  FIVE
 }

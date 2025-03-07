@@ -5,8 +5,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/autoplay";
-import { SidebarProvider } from "@/context/SidebarContext";
-import { ThemeProvider } from "@/context/ThemeContext";
+
+import CustomProvider from "@/layout/CustomProvider";
 
 const outfit = Outfit({
   variable: "--font-outfit-sans",
@@ -14,8 +14,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title:
-    "Linapalugongso | Makeup Artist",
+  title: "Linapalugongso | Makeup Artist",
   icons: "./favicon.ico",
   description: "Spesialis Youth Makeup Artist di Purwokerto",
 };
@@ -27,10 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} dark:bg-gray-900`}>
-        <ThemeProvider>
-          <SidebarProvider>{children}</SidebarProvider>
-        </ThemeProvider>
+      <body className={`${outfit.variable} dark:bg-gray-900 overflow-x-hidden`}>
+        <CustomProvider>
+          {children}
+        </CustomProvider>
       </body>
     </html>
   );
