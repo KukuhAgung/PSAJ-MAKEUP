@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Badge from "../../molecules/badge/Badge";
-import { Admin, ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon, StarIcon, Testimoni, UserIcon } from "@/icons";
+import { Admin, ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon, Testimoni } from "@/icons";
 
 export const EcommerceMetrics = () => {
   return (

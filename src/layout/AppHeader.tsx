@@ -1,11 +1,12 @@
 "use client";
-//import UserDropdown from "@/components/templates/header/UserDropdown";
+import { UserDropdown } from "@/components/templates/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState ,useEffect,useRef} from "react";
 
 const AppHeader: React.FC = () => {
+  const [open, setOpen] = useState<boolean>(false);
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
@@ -167,7 +168,7 @@ const AppHeader: React.FC = () => {
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          
+          <UserDropdown isOpen={open} setIsOpen={setOpen} accountSettings editProfile />
         </div>
       </div>
     </header>

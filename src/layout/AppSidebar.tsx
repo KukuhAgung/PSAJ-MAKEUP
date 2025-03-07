@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
-import { GridIcon, ChevronDownIcon, HorizontaLDots, Beranda, Finance } from "../icons/index";
+import { GridIcon, ChevronDownIcon, Beranda, Finance } from "../icons/index";
 
 type NavItem = {
   name: string;

@@ -1,19 +1,128 @@
-import Image from "next/image"
-import Link from "next/link"
-import Button from "@/components/molecules/button/Button"
+"use client";
+import Image from "next/image";
+import Button from "@/components/molecules/button/Button";
+import { motion, Variants } from "framer-motion";
+import { useNavbar } from "@/context/NavbarContext";
+import NavItem from "./component/NavItem";
+import { useBackdrop } from "@/context/BackdropContext";
+import { useApi } from "@/hooks/useFetchApi";
+import { useEffect, useState } from "react";
+import { IGetProfileResponseData } from "@/app/api/user-service/getProfile/index.model";
+import { UserDropdown } from "../header/UserDropdown";
 
 export const Navbar = () => {
-    return (
-        <nav className="w-full flex items-center justify-between font-jakarta font-medium text-sm">
-            <Image src="/images/logo/logo.png" alt="logo" width={230} height={100} />
-            <ul className="flex items-center justify-between gap-x-8">
-                <Link href="/" className="text-primary-500">Beranda</Link>
-                <Link href="/" className="text-primary-500">Produk</Link>
-                <Link href="/" className="text-primary-500">Galeri</Link>
-                <div className="h-4 border-l border-primary-500"></div>
-                <Button size="sm" variant="outline">Register</Button>
-                <Button size="sm">Log In</Button>
-            </ul>
-        </nav>
-    )
-}
+  const token = localStorage.getItem("token");
+  const { trigger } = useApi("/api/user-service/getProfile");
+  const { setBackdrop, setIsRegister } = useBackdrop();
+  const { activeMenu, setActiveMenu, yValue } = useNavbar();
+  const [isLogin, setIsLogin] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
+  const [data, setData] = useState<IGetProfileResponseData>();
+
+  const variants: Variants = {
+    normal: {
+      background: "rgba(255, 255, 255, 0.2)",
+    },
+    scroll: {
+      background: "rgba(255, 255, 255, 100)",
+      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+      transition: {
+        duration: 0.8,
+        ease: "easeInOut",
+        type: "tween",
+      },
+    },
+  };
+
+  useEffect(() => {
+    if (token) {
+      trigger(
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+        {
+          onSuccess: (res) => {
+            setData(res.data);
+            setIsLogin(true);
+          },
+        },
+      );
+    }
+  }, [token]);
+
+  return (
+    <motion.header
+      variants={variants}
+      animate={yValue > 0 ? "scroll" : "normal"}
+      className="fixed z-99 top-0 w-full px-10"
+    >
+      <motion.nav className="flex w-full items-center justify-between px-6 py-2 font-jakarta text-sm font-medium">
+        <Image
+          src="/images/logo/logo.png"
+          alt="logo"
+          width={230}
+          height={100}
+        />
+        <ul className="flex items-center justify-between gap-x-2">
+          <NavItem
+            label="Beranda"
+            to="/"
+            active={activeMenu}
+            setActive={setActiveMenu}
+          />
+          <NavItem
+            label="Produk"
+            to="/product"
+            active={activeMenu}
+            setActive={setActiveMenu}
+          />
+          <NavItem
+            label="Galeri"
+            to="/gallery"
+            active={activeMenu}
+            setActive={setActiveMenu}
+          />
+          <div className="h-4 mx-3 border-l-2 rounded-full border-primary-500"></div>
+          {isLogin && data ? (
+            <UserDropdown
+              onUserPage
+              isOpen={open}
+              setIsOpen={setOpen}
+              image={data.image}
+              username={data.username}
+              email={data.email}
+              editProfile
+              accountSettings
+            />
+          ) : (
+            <>
+              <Button
+                onClick={() => {
+                  setIsRegister(true);
+                  setBackdrop(true);
+                }}
+                size="sm"
+                variant="outline"
+              >
+                Register
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsRegister(false);
+                  setBackdrop(true);
+                }}
+                size="sm"
+              >
+                Log In
+              </Button>
+            </>
+          )}
+        </ul>
+      </motion.nav>
+    </motion.header>
+  );
+};

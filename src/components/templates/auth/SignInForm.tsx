@@ -11,7 +11,7 @@ export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   return (
-    <div className="flex flex-col flex-1 p-6 rounded-2xl sm:rounded-none sm:border-0 sm:p-8">
+    <article className="flex flex-col flex-1 p-6 rounded-2xl sm:rounded-none sm:border-0 sm:p-8">
       <div className="w-full max-w-md pt-10 mx-auto">
         <Link
           href="/admin"
@@ -149,6 +149,6 @@ export default function SignInForm() {
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
