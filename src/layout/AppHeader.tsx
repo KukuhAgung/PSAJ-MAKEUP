@@ -1,5 +1,5 @@
 "use client";
-import UserDropdown from "@/components/templates/header/UserDropdown";
+//import UserDropdown from "@/components/templates/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
 import Image from "next/image";
 import Link from "next/link";
@@ -167,7 +167,7 @@ const AppHeader: React.FC = () => {
             {/* <!-- Notification Menu Area --> */}
           </div>
           {/* <!-- User Area --> */}
-          <UserDropdown />
+          
         </div>
       </div>
     </header>

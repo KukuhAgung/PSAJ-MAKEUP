@@ -52,6 +52,12 @@ import ChatIcon from "./chat.svg";
 import MoreDotIcon from "./more-dot.svg";
 import BellIcon from "./bell.svg";
 import StarIcon from "./star.svg";
+import Testimoni from "./IconTestimoni.svg";
+import Admin from "./IconAdmin.svg";
+import Edit_foto from "./edit-foto.svg";
+import Beranda from "./Beranda.svg";
+import Finance from "./Finance.svg";
+import EditIcon from "./edit-2.svg";
 
 export {
   DownloadIcon,
@@ -107,5 +113,11 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
-  StarIcon
+  StarIcon,
+  Testimoni,
+  Admin,
+  Edit_foto,
+  Beranda,
+  Finance,
+  EditIcon,
 };
