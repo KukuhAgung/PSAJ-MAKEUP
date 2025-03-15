@@ -173,7 +173,6 @@ export default function IncomeDashboard() {
   const [isMonthlyImportDialogOpen, setIsMonthlyImportDialogOpen] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState<string>("all")
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
-  const [monthlySummaries, setMonthlySummaries] = useState<MonthlySummary[]>([])
 
   // Fungsi untuk menghitung ringkasan bulanan
   const calculateMonthlySummaries = () => {
@@ -199,18 +198,19 @@ export default function IncomeDashboard() {
       }
       summaries[key].categories[income.category] += income.amount
     })
-    setMonthlySummaries(
-      Object.values(summaries).sort((a, b) => {
-        if (a.year !== b.year) return a.year - b.year
-        return getMonthNumber(a.month) - getMonthNumber(b.month)
-      }),
-    )
+    // Hapus penggunaan monthlySummaries jika tidak digunakan
+    // setMonthlySummaries(
+    //   Object.values(summaries).sort((a, b) => {
+    //     if (a.year !== b.year) return a.year - b.year
+    //     return getMonthNumber(a.month) - getMonthNumber(b.month)
+    //   }),
+    // )
   }
 
   // Menghitung ringkasan bulanan saat data berubah
   useEffect(() => {
     calculateMonthlySummaries()
-  }, [incomeData])
+  }, [incomeData, calculateMonthlySummaries])
 
   // Fungsi untuk menambahkan data pemasukan baru
   const handleAddIncome = () => {
@@ -218,7 +218,7 @@ export default function IncomeDashboard() {
       ...newIncome,
       id: (incomeData.length + 1).toString(),
     }
-    setIncomeData([...incomeData, newIncomeWithId])
+    setIncomeData((prevIncomeData) => [...prevIncomeData, newIncomeWithId])
     setNewIncome({
       date: "",
       category: "",
@@ -307,20 +307,6 @@ export default function IncomeDashboard() {
     return incomeMonth === selectedMonth && incomeYear === selectedYear
   })
 
-  // Persiapkan data untuk chart
-  const chartData = monthlySummaries.map((summary) => ({
-    name: `${summary.month} ${summary.year}`,
-    amount: summary.total,
-  }))
-
-  // Hitung total pemasukan
-  const totalIncome = filteredData.reduce((sum, item) => sum + item.amount, 0)
-  const allIncome = incomeData.reduce((sum, item) => sum + item.amount, 0)
-
-  // Hitung total penjualan
-  const totalSales = filteredData.reduce((sum, item) => sum + item.totalSales, 0)
-  const allSales = incomeData.reduce((sum, item) => sum + item.totalSales, 0)
-
   // Dapatkan daftar bulan unik dari data
   const uniqueMonths = Array.from(new Set(incomeData.map((income) => getMonthName(income.date))))
 
@@ -339,8 +325,10 @@ export default function IncomeDashboard() {
             <CardDescription>Total pemasukan dari semua kategori</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{formatRupiah(allIncome)}</p>
-            <p className="text-sm text-muted-foreground mt-2">Total Penjualan: {allSales} item</p>
+            <p className="text-3xl font-bold">{formatRupiah(filteredData.reduce((sum, item) => sum + item.amount, 0))}</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Total Penjualan: {filteredData.reduce((sum, item) => sum + item.totalSales, 0)} item
+            </p>
           </CardContent>
         </Card>
         {/* Filter Data Bulanan */}

@@ -1,6 +1,6 @@
 "use client";
 import type { JSX } from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { motion, type PanInfo, useMotionValue, useTransform } from "framer-motion";
 import type { CarouselProps } from "./index.model";
 import VideoPlay from "./component/VideoPlay";
@@ -30,7 +30,7 @@ export default function Carousel({
   const carouselItems = loop ? [...videos, videos[0]] : videos;
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const x = useMotionValue(0);
+  const x = useMotionValue<number>(0);
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isResetting, setIsResetting] = useState<boolean>(false);
   const [isOnPlay, setIsOnPlay] = useState<boolean>(false);
@@ -110,16 +110,19 @@ export default function Carousel({
     }
   };
 
-  const range = Array.from({ length: carouselItems.length }, (_, i) => [
-    -(i + 1) * trackItemOffset,
-    -i * trackItemOffset,
-    -(i - 1) * trackItemOffset,
-  ]);
-  const outputRange = Array.from({ length: carouselItems.length }, () => [90, 0, -90]);
+  const range = useMemo(
+    () =>
+      Array.from({ length: carouselItems.length }, (_, i) => [
+        -(i + 1) * trackItemOffset,
+        -i * trackItemOffset,
+        -(i - 1) * trackItemOffset,
+      ]),
+    [carouselItems.length, trackItemOffset]
+  );
 
-  // Menggunakan map untuk membuat array rotateY sebelumnya
-  const rotateY = carouselItems.map((_, index) =>
-    useTransform(x, range[index], outputRange[index], { clamp: false })
+  const outputRange = useMemo(
+    () => Array.from({ length: carouselItems.length }, () => [90, 0, -90]),
+    [carouselItems.length]
   );
 
   return (
@@ -148,25 +151,20 @@ export default function Carousel({
         onAnimationComplete={handleAnimationComplete}
       >
         {carouselItems.map((item, index) => (
-          <motion.div
+          <CarouselItem
             key={index}
-            className="relative shrink-0 flex flex-col overflow-hidden cursor-grab active:cursor-grabbing"
-            style={{
-              width: itemWidth,
-              height: round ? itemWidth : "100%",
-              rotateY: rotateY[index],
-              ...(round && { borderRadius: "50%" }),
-            }}
-            transition={effectiveTransition}
-          >
-            <VideoPlay
-              src={item.video}
-              setOnPlay={setIsOnPlay}
-              isAdmin={isAdmin}
-              onVideoChange={(newSrc) => handleVideoChange(item.id, newSrc)}
-              onEditClick={() => handleEditVideo(item.id)}
-            />
-          </motion.div>
+            item={item}
+            index={index}
+            x={x}
+            range={range}
+            outputRange={outputRange}
+            itemWidth={itemWidth}
+            round={round}
+            isAdmin={isAdmin}
+            handleVideoChange={handleVideoChange}
+            handleEditVideo={handleEditVideo}
+            setIsOnPlay={setIsOnPlay}
+          />
         ))}
       </motion.div>
       <div className="flex w-full mt-4 gap-x-3">
@@ -190,3 +188,59 @@ export default function Carousel({
     </div>
   );
 }
+
+interface Item {
+  id: number;
+  video: string;
+}
+
+interface CarouselItemProps {
+  item: Item;
+  index: number;
+  x: ReturnType<typeof useMotionValue<number>>;
+  range: number[][];
+  outputRange: number[][];
+  itemWidth: number;
+  round: boolean;
+  isAdmin: boolean;
+  handleVideoChange: (id: number, newSrc: string) => void;
+  handleEditVideo: (id: number) => void;
+  setIsOnPlay: (isPlaying: boolean) => void;
+}
+
+const CarouselItem: React.FC<CarouselItemProps> = ({
+  item,
+  index,
+  x,
+  range,
+  outputRange,
+  itemWidth,
+  round,
+  isAdmin,
+  handleVideoChange,
+  handleEditVideo,
+  setIsOnPlay,
+}) => {
+  const rotateY = useTransform(x, range[index], outputRange[index], { clamp: false });
+
+  return (
+    <motion.div
+      className="relative shrink-0 flex flex-col overflow-hidden cursor-grab active:cursor-grabbing"
+      style={{
+        width: itemWidth,
+        height: round ? itemWidth : "100%",
+        rotateY: rotateY,
+        ...(round && { borderRadius: "50%" }),
+      }}
+      transition={SPRING_OPTIONS}
+    >
+      <VideoPlay
+        src={item.video}
+        setOnPlay={setIsOnPlay}
+        isAdmin={isAdmin}
+        onVideoChange={(newSrc) => handleVideoChange(item.id, newSrc)}
+        onEditClick={() => handleEditVideo(item.id)}
+      />
+    </motion.div>
+  );
+};
