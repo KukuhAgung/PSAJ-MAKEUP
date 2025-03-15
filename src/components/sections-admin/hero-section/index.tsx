@@ -7,6 +7,7 @@ import { Edit_foto } from "@/icons";
 import Avatar from "@/components/molecules/avatar/Avatar";
 import { useState, useRef } from "react";
 
+
 const rozha = Rozha_One({
   weight: "400",
   subsets: ["latin"],

@@ -20,10 +20,10 @@ const navItems: NavItem[] = [
     subItems: [{ name: "Penjualan", path: "/admin", pro: false }],
   },
   {
-    name: "Beranda",
+    name: "Konten Utama",
     icon: <Beranda />, 
     subItems: [
-      { name: "Konten Utama", path: "/admin/home-main", pro: false },
+      { name: "Beranda", path: "/admin/home-main", pro: false },
       { name: "Produk", path: "/admin/home-products", pro: false },
       { name: "Galeri", path: "/admin/home-gallery", pro: false },
     ],
@@ -60,7 +60,10 @@ const AppSidebar: React.FC = () => {
             </button>
           ) : (
             nav.path && (
-              <Link href={nav.path} className={`menu-item group ${isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"}`}>
+              <Link 
+                href={nav.path} 
+                className={`menu-item group ${isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"} ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"}`}
+              >
                 <span className={isActive(nav.path) ? "menu-item-icon-active" : "menu-item-icon-inactive"}>{nav.icon}</span>
                 {(isExpanded || isHovered || isMobileOpen) && <span className="menu-item-text">{nav.name}</span>}
               </Link>
