@@ -4,13 +4,24 @@ import { ResultSection } from "./(section)/ResultSection";
 import { ResultsSectionData } from "./index.data";
 
 export default function Gallery() {
-    return (
-        <>
-            <HeroSection />
-            {ResultsSectionData.map((item, index) => (
-                <ResultSection key={index} title={item.title} subtitle={item.subtitle} data={item.data} />
-            ))}
-            <GallerySection/>
-        </>
-    );
+  return (
+    <section className="mr-1 flex w-full -translate-x-5 flex-col items-center gap-y-16 px-4 lg:px-16">
+      <div className="w-full max-w-7xl">
+        <HeroSection />
+      </div>
+      <div className="w-full max-w-7xl">
+        {ResultsSectionData.map((item, index) => (
+          <ResultSection
+            key={index}
+            title={item.title}
+            subtitle={item.subtitle}
+            data={item.data}
+          />
+        ))}
+      </div>
+      <div className="w-full max-w-7xl">
+        <GallerySection />
+      </div>
+    </section>
+  );
 }

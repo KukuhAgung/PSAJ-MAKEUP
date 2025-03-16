@@ -121,7 +121,7 @@ const AppSidebar: React.FC = () => {
   };
 
   return (
-    <aside className={`fixed top-0 left-0 bg-white dark:bg-gray-900 h-screen transition-all ${isExpanded || isMobileOpen ? "w-[290px]" : isHovered ? "w-[290px]" : "w-[90px]"}`} onMouseEnter={() => !isExpanded && setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+    <aside className={`fixed z-9999 top-0 left-0 bg-white dark:bg-gray-900 h-screen transition-all ${isExpanded || isMobileOpen ? "w-[290px]" : isHovered ? "w-[290px]" : "w-[90px]"}`} onMouseEnter={() => !isExpanded && setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       <div className="py-8">
         <Link href="/">
           {isExpanded || isHovered || isMobileOpen ? <Image src="/images/logo/logo.png" alt="Logo" width={200} height={40} /> : <Image src="/images/logo/logo-dark.png" alt="Logo" width={32} height={32} />}
