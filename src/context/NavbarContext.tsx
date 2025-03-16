@@ -7,21 +7,23 @@ import {
   useEffect,
 } from "react";
 import { scrollInfo } from "framer-motion";
-
-export type menu = "Beranda" | "Produk" | "Galeri";
+import { pages } from "@/components/templates/navbar/index.data";
 
 interface NavbarContextProps {
   yValue: number;
   setYValue: (value: number) => void;
   activeMenu: string;
-  setActiveMenu: (menu: menu) => void;
+  setActiveMenu: (menu: pages) => void;
+  hovered: string | null;
+  setHovered: (menu: pages | null) => void;
 }
 
 const NavbarContext = createContext<NavbarContextProps | undefined>(undefined);
 
 export const NavbarProvider = ({ children }: { children: ReactNode }) => {
-  const currentPath: menu = localStorage.getItem("storePath") as menu || "Beranda";
-  const [activeMenu, setActiveMenu] = useState<menu>(currentPath);
+  const currentPath: pages = localStorage.getItem("storePath") as pages || "Beranda";
+  const [activeMenu, setActiveMenu] = useState<pages>(currentPath);
+  const [hovered, setHovered] = useState<pages | null>(null);
   const [yValue, setYValue] = useState(0);
 
   useEffect(() => {
@@ -34,9 +36,18 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (hovered === null) {
+      setActiveMenu(currentPath);
+    } else {
+      setActiveMenu(hovered);
+    }
+  }, [hovered]);
+  
+
   return (
     <NavbarContext.Provider
-      value={{ activeMenu, setActiveMenu, yValue, setYValue }}
+      value={{ activeMenu, setActiveMenu, hovered, setHovered, yValue, setYValue }}
     >
       {children}
     </NavbarContext.Provider>

@@ -9,12 +9,13 @@ import { useApi } from "@/hooks/useFetchApi";
 import { useEffect, useState } from "react";
 import { IGetProfileResponseData } from "@/app/api/user-service/getProfile/index.model";
 import { UserDropdown } from "../header/UserDropdown";
+import { menus } from "./index.data";
 
 export const Navbar = () => {
   const token = localStorage.getItem("token");
   const { trigger } = useApi("/api/user-service/getProfile");
   const { setBackdrop, setIsRegister } = useBackdrop();
-  const { activeMenu, setActiveMenu, yValue } = useNavbar();
+  const { activeMenu, setActiveMenu, yValue, setHovered } = useNavbar();
   const [isLogin, setIsLogin] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
   const [data, setData] = useState<IGetProfileResponseData>();
@@ -58,7 +59,7 @@ export const Navbar = () => {
     <motion.header
       variants={variants}
       animate={yValue > 0 ? "scroll" : "normal"}
-      className="fixed z-99 top-0 w-full px-10"
+      className="fixed top-0 z-99 w-full px-10"
     >
       <motion.nav className="flex w-full items-center justify-between px-6 py-2 font-jakarta text-sm font-medium">
         <Image
@@ -68,25 +69,17 @@ export const Navbar = () => {
           height={100}
         />
         <ul className="flex items-center justify-between gap-x-2">
-          <NavItem
-            label="Beranda"
-            to="/"
-            active={activeMenu}
-            setActive={setActiveMenu}
-          />
-          <NavItem
-            label="Produk"
-            to="/product"
-            active={activeMenu}
-            setActive={setActiveMenu}
-          />
-          <NavItem
-            label="Galeri"
-            to="/gallery"
-            active={activeMenu}
-            setActive={setActiveMenu}
-          />
-          <div className="h-4 mx-3 border-l-2 rounded-full border-primary-500"></div>
+          {menus.map((item, index) => (
+            <NavItem
+              key={index}
+              label={item.label}
+              to={item.to}
+              active={activeMenu}
+              setHovered={setHovered}
+              setActive={setActiveMenu}
+            />
+          ))}
+          <div className="mx-3 h-4 rounded-full border-l-2 border-primary-500"></div>
           {isLogin && data ? (
             <UserDropdown
               onUserPage
