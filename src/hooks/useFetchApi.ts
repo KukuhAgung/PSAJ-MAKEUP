@@ -21,8 +21,7 @@ const fetcher = async (url: string, { arg }: { arg: FetcherArgs }) => {
   });
 
   if (!res.ok) {
-    const errorData = await res.json();
-    throw new Error(errorData.message || "Request failed");
+    return JSON.stringify({ code: res.status, message: res.statusText, data: null });
   }
 
   return res.json();

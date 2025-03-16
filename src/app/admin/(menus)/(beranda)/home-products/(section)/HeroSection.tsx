@@ -31,7 +31,7 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="grid min-h-[90vh] w-full grid-cols-2 items-center rounded-xl bg-gradient-to-bl from-primary-25 via-primary-50 to-primary-200 p-10">
+    <section className="grid min-h-[90vh] w-full grid-cols-2 items-center rounded-xl bg-gradient-to-l from-primary-500 via-primary-50 to-primary-25 p-10">
       <article className="flex flex-col gap-y-8">
         <div className="flex flex-col gap-y-2">
           <h1
@@ -79,9 +79,9 @@ export const HeroSection = () => {
             {/* Tombol Edit */}
             <button
               onClick={handleEditClick}
-              className="absolute top-4 right-4 bg-primary-500 p-2 rounded-full shadow-lg hover:bg-primary-700 transition"
+              className="absolute right-4 top-4 rounded-full bg-primary-500 p-2 shadow-lg transition hover:bg-primary-700"
             >
-              <Edit_foto className="text-white w-6 h-6" />
+              <Edit_foto className="h-6 w-6 text-white" />
             </button>
 
             {/* Input File Tersembunyi */}

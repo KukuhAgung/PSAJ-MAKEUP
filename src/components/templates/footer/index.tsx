@@ -94,7 +94,9 @@ export const Footer = () => {
         </Link>
       </ul>
       <article className="flex w-full justify-between">
-        <p className="text-sm text-gray-500 dark:text-gray-400">&copy; 2025</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          &copy; 2025 - Lina Palugongso Make Up
+        </p>
         <div className="flex items-center gap-x-3">
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Privacy & Policy

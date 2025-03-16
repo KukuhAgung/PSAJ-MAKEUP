@@ -28,10 +28,12 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="grid min-h-[90vh] w-full grid-cols-2 items-center rounded-xl bg-gradient-to-br from-primary-200 via-primary-50 to-primary-25 p-10">
+    <section className="grid min-h-[90vh] w-full grid-cols-2 items-center rounded-xl bg-gradient-to-l from-primary-500 via-primary-50 to-primary-25 p-10">
       <article className="flex flex-col gap-y-8">
         <div className="flex flex-col gap-y-2">
-          <h1 className={`${rozha.className} text-title-3xl font-bold text-black dark:text-white/90`}>
+          <h1
+            className={`${rozha.className} text-title-3xl font-bold text-black dark:text-white/90`}
+          >
             Simak <span className="text-primary-500">Galeri</span>
             <span className="inline-block">Kami</span>
           </h1>
@@ -50,7 +52,7 @@ export const HeroSection = () => {
       </article>
 
       <aside className="flex h-full items-center justify-center">
-        <div className="flex w-[80%] items-center rounded-3xl border border-white border-opacity-60 bg-white bg-opacity-25 px-8 py-10 relative">
+        <div className="relative flex w-[80%] items-center rounded-3xl border border-white border-opacity-60 bg-white bg-opacity-25 px-8 py-10">
           <div className="relative flex w-fit rounded-xl px-8 py-10">
             {/* Shape sebagai Masking */}
             <Image
@@ -73,8 +75,11 @@ export const HeroSection = () => {
             />
 
             {/* Icon Edit */}
-            <button onClick={handleEditClick} className="absolute top-4 right-4 bg-primary-500 p-2 rounded-full shadow-lg hover:bg-primary-700 transition">
-              <Edit_foto className="text-white w-6 h-6" />
+            <button
+              onClick={handleEditClick}
+              className="absolute right-4 top-4 rounded-full bg-primary-500 p-2 shadow-lg transition hover:bg-primary-700"
+            >
+              <Edit_foto className="h-6 w-6 text-white" />
             </button>
 
             {/* Input File Hidden */}
