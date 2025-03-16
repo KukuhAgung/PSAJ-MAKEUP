@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../molecules/table";
-import { EditIcon } from "@/icons";
+import { EditTabel } from "@/icons";
 import Badge from "../../molecules/badge/Badge";
 import { Dialog } from "@headlessui/react";
 
@@ -72,7 +72,7 @@ export default function UserManagementTable() {
               </TableCell>
               <TableCell className="py-3 px-4">
                 <button onClick={() => openModal(user)} className="text-blue-500 hover:text-blue-700">
-                  <EditIcon className="w-5 h-5" />
+                  <EditTabel className="w-5 h-5" />
                 </button>
               </TableCell>
             </TableRow>

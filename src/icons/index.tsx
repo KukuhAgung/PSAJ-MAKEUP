@@ -54,10 +54,11 @@ import BellIcon from "./bell.svg";
 import StarIcon from "./star.svg";
 import Testimoni from "./IconTestimoni.svg";
 import Admin from "./IconAdmin.svg";
-import Edit_foto from "./edit-foto.svg";
+import Edit_foto from "./gallery-edit.svg";
 import Beranda from "./Beranda.svg";
 import Finance from "./Finance.svg";
-import EditIcon from "./edit-2.svg";
+import EditIcon from "./EditPesan.svg";
+import EditTabel from './edit-2.svg';
 
 export {
   DownloadIcon,
@@ -120,4 +121,5 @@ export {
   Beranda,
   Finance,
   EditIcon,
+  EditTabel,
 };
