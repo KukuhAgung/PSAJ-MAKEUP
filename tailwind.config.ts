@@ -5,7 +5,7 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   darkMode: ["class", "class"],
-  theme: {
+	theme: {
   	fontFamily: {
   		outfit: [
   			'Outfit',

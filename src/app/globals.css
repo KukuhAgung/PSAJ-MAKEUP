@@ -456,6 +456,25 @@
   -webkit-mask-repeat: no-repeat;
 }
 
+.productmenu-section {
+  position: relative; /* relative */
+  background-image: url('/images/product/bg-product-menu.jpg'); /* bg-bgProductMenu */
+  background-size: cover; /* bg-cover */
+  background-position: left; /* bg-left */
+  background-repeat: no-repeat; /* bg-no-repeat */
+  display: flex; /* flex */
+  align-items: center;
+  min-height: 30vh; /* min-h-[30vh] */
+  flex-direction: column; /* flex-col */
+  justify-content: center; /* justify-center */
+  row-gap: 3.5rem; /* gap-y-14 */
+  overflow: hidden; /* overflow-hidden */
+  border-radius: 0.75rem; /* rounded-xl */
+  padding-left: 2.5rem; /* px-10 */
+  padding-right: 2.5rem; /* px-10 */
+  padding-top: 5rem; /* py-20 */
+  padding-bottom: 5rem; /* py-20 */
+}
 
 
 @layer base {

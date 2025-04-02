@@ -5,24 +5,26 @@ import { motion } from "framer-motion";
 interface IProps {
   children: React.ReactNode;
   className?: string;
+  onclick?: () => void
 }
 
-const AnimateButton: React.FC<IProps> = ({ children, className="relative" }) => {
+const AnimateButton: React.FC<IProps> = ({ children, className="relative", onclick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <button
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`flex w-full md:max-w-[188px] md:h-[48px] max-w-[150px] h-[48px] items-center justify-center rounded-full overflow-hidden bg-primary-500 border border-primary-500 ${className}`}
+      onClick={() => onclick?.()}
+      className={`flex h-[48px] w-full max-w-[150px] items-center justify-center overflow-hidden rounded-full border border-primary-500 bg-primary-500 md:h-[48px] md:max-w-[188px] ${className}`}
     >
       <motion.div
         initial={{ y: 0 }}
         animate={{ y: isHovered ? -50 : 0 }}
         transition={{ type: "spring", duration: 0.5, ease: "easeInOut" }}
-        className="absolute flex inset-0 w-full h-full items-center gap-x-3 justify-center"
+        className="absolute inset-0 flex h-full w-full items-center justify-center gap-x-3"
       >
-        <p className="font-semibold text-sm tracking-[3%] text-white">
+        <p className="text-sm font-semibold tracking-[3%] text-white">
           {children || "Masukkan text"}
         </p>
         <svg
@@ -54,9 +56,9 @@ const AnimateButton: React.FC<IProps> = ({ children, className="relative" }) => 
         initial={{ y: 50 }}
         animate={{ y: isHovered ? 0 : 50 }}
         transition={{ type: "spring", duration: 0.6, ease: "easeInOut" }}
-        className="absolute flex inset-0 w-full h-full items-center gap-x-3 justify-center"
+        className="absolute inset-0 flex h-full w-full items-center justify-center gap-x-3"
       >
-        <p className="font-semibold text-sm tracking-[3%] text-primary-500">
+        <p className="text-sm font-semibold tracking-[3%] text-primary-500">
           {children || "Masukkan text"}
         </p>
         <svg

@@ -37,7 +37,8 @@ const NavItem = ({
       {label === active && (
         <motion.div
           layoutId="nav-item"
-          initial={{ position: "absolute", zIndex: -10 }}
+          initial={false}
+          style={{ position: "absolute", zIndex: -10 }}
           transition={{
             type: "tween",
             duration: 0.2,
