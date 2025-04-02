@@ -5,9 +5,8 @@ import { IProductSectionProps } from "../index.model";
 
 export const ProductSection: React.FC<IProductSectionProps> = ({ data }) => {
   return (
-    <section
-      className="flex min-h-screen flex-col justify-center gap-y-14 overflow-hidden rounded-xl border border-white bg-primary-500 bg-opacity-10 px-10 py-20"
-    >
+    <section className="relative flex min-h-screen flex-col justify-center gap-y-14 rounded-xl border border-white bg-primary-500 bg-opacity-10 px-10 py-20">
+      <div className="absolute -left-32 -top-16 -z-10 h-[320px] w-[350px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[84px]"></div>
       <div className="flex flex-col gap-y-10">
         <h1 className="text-center font-jakarta text-[56px] font-semibold">
           {data.title}
@@ -30,7 +29,7 @@ export const ProductSection: React.FC<IProductSectionProps> = ({ data }) => {
             Pilihan Layanan
           </h1>
           <p className="text-justify font-jakarta text-base font-medium text-black opacity-60">
-           {data.description}
+            {data.description}
           </p>
           {/* <Button size="md" className="w-[180px]" endIcon={(
                     <div className="absolute right-2 w-fit h-fit rounded-full bg-white text-black px-2 py-2"><ArrowRightIcon/></div>
@@ -38,6 +37,7 @@ export const ProductSection: React.FC<IProductSectionProps> = ({ data }) => {
           <AnimateButton>Pesan Sekarang</AnimateButton>
         </aside>
       </article>
+       <div className="absolute -right-10 -bottom-60 -z-10 h-[280px] w-[320px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[88px]"></div>
     </section>
   );
 };
