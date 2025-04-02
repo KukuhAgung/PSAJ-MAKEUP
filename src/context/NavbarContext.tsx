@@ -8,6 +8,7 @@ import {
 } from "react";
 import { scrollInfo } from "framer-motion";
 import { pages } from "@/components/templates/navbar/index.data";
+import { usePathname } from "next/navigation";
 
 interface NavbarContextProps {
   yValue: number;
@@ -21,7 +22,10 @@ interface NavbarContextProps {
 const NavbarContext = createContext<NavbarContextProps | undefined>(undefined);
 
 export const NavbarProvider = ({ children }: { children: ReactNode }) => {
-  const currentPath: pages = localStorage.getItem("storePath") as pages || "Beranda";
+  const path = usePathname();
+  const splitpath = path.split("/");
+  const currentPath: pages =
+    (localStorage.getItem("storePath") as pages) || "Beranda";
   const [activeMenu, setActiveMenu] = useState<pages>(currentPath);
   const [hovered, setHovered] = useState<pages | null>(null);
   const [yValue, setYValue] = useState(0);
@@ -43,11 +47,34 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
       setActiveMenu(hovered);
     }
   }, [hovered]);
-  
+
+  useEffect(() => {  
+    switch (splitpath[1]) {
+      case "product":
+        localStorage.setItem("storePath", "Produk");
+        setActiveMenu("Produk");
+        break;
+      case "gallery":
+        localStorage.setItem("storePath", "Galeri");
+        setActiveMenu("Galeri");
+        break;
+      default:
+        localStorage.setItem("storePath", "Beranda");
+        setActiveMenu("Beranda");
+        break;
+    }
+  }, [path])
 
   return (
     <NavbarContext.Provider
-      value={{ activeMenu, setActiveMenu, hovered, setHovered, yValue, setYValue }}
+      value={{
+        activeMenu,
+        setActiveMenu,
+        hovered,
+        setHovered,
+        yValue,
+        setYValue,
+      }}
     >
       {children}
     </NavbarContext.Provider>

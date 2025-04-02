@@ -21,7 +21,7 @@ export const ResultsBefore: IResultData[] = [
     id: 5,
     image: "/images/gallery/before-after/before-4.png",
   },
-  ,
+
   {
     id: 6,
     image: "/images/gallery/before-after/before-5.png",
@@ -49,7 +49,7 @@ export const ResultsAfter: IResultData[] = [
     id: 5,
     image: "/images/gallery/before-after/after-4.png",
   },
-  ,
+
   {
     id: 6,
     image: "/images/gallery/before-after/after-5.png",
@@ -90,7 +90,7 @@ export const GalleryData: IResultData[] = [
     id: 5,
     image: "/images/gallery/gallery-4.png",
   },
-  ,
+
   {
     id: 6,
     image: "/images/gallery/gallery-3.png",
