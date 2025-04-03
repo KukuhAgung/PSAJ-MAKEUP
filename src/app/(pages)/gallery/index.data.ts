@@ -90,7 +90,6 @@ export const GalleryData: IResultData[] = [
     id: 5,
     image: "/images/gallery/gallery-4.png",
   },
-
   {
     id: 6,
     image: "/images/gallery/gallery-3.png",
