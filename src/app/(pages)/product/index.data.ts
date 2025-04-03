@@ -78,7 +78,7 @@ export const Products: IProductData[] = [
     title: "Party",
     subtitle:
       "Paket make up yang bisa digunakan di momen pentingmu seperti wisuda, buku tahunan, dll.",
-    banner: "/images/product/product-banner-03.png",
+    banner: "/images/product/product-banner-02.png",
     description:
       "Kami menyediakan layanan make up ini untuk acara wisuda, pesta, maupun foto buku tahunan. Paket ini tersedia mulai Rp 60.000,00 hingga Rp 345.000,00 sesuai yang tertera pada gambar di samping ini!",
     data: [
@@ -114,7 +114,7 @@ export const Products: IProductData[] = [
     title: "Yearbook",
     subtitle:
       "Paket make up yang bisa digunakan di momen pentingmu seperti wisuda, buku tahunan, dll.",
-    banner: "/images/product/product-banner-04.png",
+    banner: "/images/product/product-banner-02.png",
     description:
       "Kami menyediakan layanan make up ini untuk acara wisuda, pesta, maupun foto buku tahunan. Paket ini tersedia mulai Rp 60.000,00 hingga Rp 345.000,00 sesuai yang tertera pada gambar di samping ini!",
     data: [
@@ -150,7 +150,7 @@ export const Products: IProductData[] = [
     title: "Birthday",
     subtitle:
       "Paket make up yang bisa digunakan di momen pentingmu seperti pesta ulang tahun dan foto maternity.",
-    banner: "/images/product/product-banner-04.png",
+    banner: "/images/product/product-banner-03.png",
     description:
       "Kami menyediakan layanan make up ini untuk acara  pesta ulang tahun, maupun foto maternity. Paket ini tersedia mulai Rp 100.000,00 hingga Rp 450.000,00 sesuai yang tertera pada gambar di samping ini!",
     data: [
@@ -186,7 +186,7 @@ export const Products: IProductData[] = [
     title: "Maternity",
     subtitle:
       "Paket make up yang bisa digunakan di momen pentingmu seperti pesta ulang tahun dan foto maternity.",
-    banner: "/images/product/product-banner-04.png",
+    banner: "/images/product/product-banner-03.png",
     description:
       "Kami menyediakan layanan make up ini untuk acara  pesta ulang tahun, maupun foto maternity. Paket ini tersedia mulai Rp 100.000,00 hingga Rp 450.000,00 sesuai yang tertera pada gambar di samping ini!",
     data: [
@@ -222,7 +222,7 @@ export const Products: IProductData[] = [
     title: "Engangement",
     subtitle:
       "Paket make up yang bisa digunakan di momen pentingmu seperti pertunangan dan foto prewedding.",
-    banner: "/images/product/product-banner-04.png",
+    banner: "/images/product/product-banner-03.png",
     description:
       "Kami menyediakan layanan make up ini untuk acara pertunangan, maupun foto prewedding. Paket ini tersedia mulai Rp 145.000,00 hingga Rp 540.000,00 sesuai yang tertera pada gambar di samping ini!",
     data: [
@@ -258,7 +258,7 @@ export const Products: IProductData[] = [
     title: "Prewedding",
     subtitle:
       "Paket make up yang bisa digunakan di momen pentingmu seperti pertunangan dan foto prewedding.",
-    banner: "/images/product/product-banner-04.png",
+    banner: "/images/product/product-banner-03.png",
     description:
       "Kami menyediakan layanan make up ini untuk acara pertunangan, maupun foto prewedding. Paket ini tersedia mulai Rp 145.000,00 hingga Rp 540.000,00 sesuai yang tertera pada gambar di samping ini!",
     data: [
