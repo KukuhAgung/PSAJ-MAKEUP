@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -12,19 +12,46 @@ import { EditTabel } from "@/icons";
 import Badge from "../../molecules/badge/Badge";
 import { Dialog } from "@headlessui/react";
 
-// Dummy Data User
-const usersData = [
-  { id: 1, username: "john_doe", email: "john@example.com", password: "********", phone: "123-456-7890", role: "Admin" },
-  { id: 2, username: "jane_smith", email: "jane@example.com", password: "********", phone: "987-654-3210", role: "User" },
-  { id: 3, username: "mike_jones", email: "mike@example.com", password: "********", phone: "456-789-1234", role: "User" },
-];
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  password: string;
+  phone: string;
+  role: string;
+}
 
 export default function UserManagementTable() {
-  const [users, setUsers] = useState(usersData);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
-  const openModal = (user: any) => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/tabeluser');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch users: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        setUsers(result.data);
+      } catch (err) {
+        console.error("Error fetching users:", err);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const openModal = (user: User) => {
     setSelectedUser(user);
     setIsOpen(true);
   };
@@ -34,14 +61,43 @@ export default function UserManagementTable() {
     setSelectedUser(null);
   };
 
-  const handleUpdateUser = () => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === selectedUser.id ? { ...selectedUser } : user
-      )
-    );
-    closeModal();
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      const response = await fetch(`/api/tabeluser/${selectedUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: selectedUser.username,
+          email: selectedUser.email,
+          phoneNumber: selectedUser.phone,
+          role: selectedUser.role === "Admin" ? "ADMIN" : "USER",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update user');
+      }
+
+      // Update the local state with the updated user
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === selectedUser.id ? { ...selectedUser } : user
+        )
+      );
+      
+      closeModal();
+    } catch (err) {
+      console.error("Error updating user:", err);
+      alert("Failed to update user. Please try again.");
+    }
   };
+
+  if (loading) return <div className="p-6 text-center">Loading users...</div>;
+  if (error) return <div className="p-6 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-300 bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-900">
@@ -59,24 +115,48 @@ export default function UserManagementTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-              <TableCell className="py-3 px-4">{user.username}</TableCell>
-              <TableCell className="py-3 px-4">{user.email}</TableCell>
-              <TableCell className="py-3 px-4">{user.password}</TableCell>
-              <TableCell className="py-3 px-4">{user.phone}</TableCell>
-              <TableCell className="py-3 px-4">
-                <Badge color={user.role === "Admin" ? "success" : "warning"}>
-                  {user.role}
-                </Badge>
+          {users.length === 0 ? (
+            <TableRow>
+              <TableCell className="py-8 text-center text-gray-500">
+                No users found
               </TableCell>
-              <TableCell className="py-3 px-4">
-                <button onClick={() => openModal(user)} className="text-blue-500 hover:text-blue-700">
-                  <EditTabel className="w-5 h-5" />
-                </button>
+              <TableCell className="py-8 text-center text-gray-500">
+                {/* Empty cell with children */}
+                &nbsp;
+              </TableCell>
+              <TableCell className="py-8 text-center text-gray-500">
+                &nbsp;
+              </TableCell>
+              <TableCell className="py-8 text-center text-gray-500">
+                &nbsp;
+              </TableCell>
+              <TableCell className="py-8 text-center text-gray-500">
+                &nbsp;
+              </TableCell>
+              <TableCell className="py-8 text-center text-gray-500">
+                &nbsp;
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            users.map((user) => (
+              <TableRow key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                <TableCell className="py-3 px-4">{user.username}</TableCell>
+                <TableCell className="py-3 px-4">{user.email}</TableCell>
+                <TableCell className="py-3 px-4">{user.password}</TableCell>
+                <TableCell className="py-3 px-4">{user.phone}</TableCell>
+                <TableCell className="py-3 px-4">
+                  <Badge color={user.role === "Admin" ? "success" : "warning"}>
+                    {user.role}
+                  </Badge>
+                </TableCell>
+                <TableCell className="py-3 px-4">
+                  <button onClick={() => openModal(user)} className="text-blue-500 hover:text-blue-700">
+                    <EditTabel className="w-5 h-5" />
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
 

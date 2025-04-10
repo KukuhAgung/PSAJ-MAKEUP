@@ -1,8 +1,10 @@
+"use client";
 import Button from "@/components/molecules/button/Button";
 import Image from "next/image";
-import { Rozha_One } from "next/font/google";
+import { Rozha_One } from 'next/font/google';
 import { StarIcon } from "@/icons";
 import Avatar from "@/components/molecules/avatar/Avatar";
+import { useState, useEffect } from "react";
 
 const rozha = Rozha_One({
   weight: "400",
@@ -10,6 +12,26 @@ const rozha = Rozha_One({
 });
 
 export const HeroSection = () => {
+  const [heroImage, setHeroImage] = useState<string>("/images/grid-image/hero-image.png");
+
+  // Fetch current hero image on component mount
+  useEffect(() => {
+    const fetchHeroImage = async () => {
+      try {
+        const response = await fetch('/api/hero');
+        const data = await response.json();
+        
+        if (data.code === 200 && data.data) {
+          setHeroImage(data.data.imageUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching hero image:", error);
+      }
+    };
+
+    fetchHeroImage();
+  }, []);
+
   return (
     <section className="relative grid min-h-[90vh] w-full grid-cols-2 items-center rounded-xl bg-gradient-to-l from-primary-500 via-primary-50 to-primary-25 p-10">
       <div className="absolute -right-14 -bottom-56 -z-10 h-[500px] w-[435px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[86px]"></div>
@@ -78,7 +100,7 @@ export const HeroSection = () => {
             <Image
               priority
               alt="hero-img"
-              src="/images/grid-image/hero-image.png"
+              src={heroImage || "/placeholder.svg"}
               width={490}
               height={490}
               className="mask-image relative drop-shadow-2xl"

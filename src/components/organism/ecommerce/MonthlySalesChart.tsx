@@ -3,7 +3,7 @@ import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 import { MoreDotIcon } from "@/icons";
 import { DropdownItem } from "../../molecules/dropdown/DropdownItem";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dropdown } from "../../molecules/dropdown/Dropdown";
 
 // Dynamically import the ReactApexChart component
@@ -12,7 +12,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 });
 
 export default function MonthlySalesChart() {
-  const options: ApexOptions = {
+  const [options, setOptions] = useState<ApexOptions>({
     colors: ["#465fff"],
     chart: {
       fontFamily: "Outfit, sans-serif",
@@ -81,7 +81,6 @@ export default function MonthlySalesChart() {
     fill: {
       opacity: 1,
     },
-
     tooltip: {
       x: {
         show: false,
@@ -90,14 +89,17 @@ export default function MonthlySalesChart() {
         formatter: (val: number) => `${val}`,
       },
     },
-  };
-  const series = [
+  });
+
+  const [series, setSeries] = useState([
     {
       name: "Sales",
       data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
     },
-  ];
+  ]);
+
   const [isOpen, setIsOpen] = useState(false);
+  const selectedYear = new Date().getFullYear(); // Tetapkan tahun saat ini
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -107,11 +109,37 @@ export default function MonthlySalesChart() {
     setIsOpen(false);
   }
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`/api/finance?year=${selectedYear}`);
+        const result = await response.json();
+        const salesData = Array(12).fill(0);
+
+        result.data.forEach((income: any) => {
+          const month = new Date(income.date).getMonth();
+          salesData[month] += income.totalSales;
+        });
+
+        setSeries([
+          {
+            name: "Total",
+            data: salesData,
+          },
+        ]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [selectedYear]);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Pemasukan Bulanan
+          Total Penjualan Bulanan
         </h3>
 
         <div className="relative inline-block">
