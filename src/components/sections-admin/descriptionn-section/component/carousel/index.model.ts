@@ -11,5 +11,9 @@ export interface CarouselItem {
     pauseOnHover?: boolean
     loop?: boolean
     round?: boolean
+    isLoading?: number | null
+    showToast: (message: string, type: "success" | "error") => void
+    setSelectedFile: React.Dispatch<React.SetStateAction<File | null>>
+    setShowConfirmation : React.Dispatch<React.SetStateAction<number | null>>
   }
   

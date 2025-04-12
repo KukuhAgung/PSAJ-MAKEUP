@@ -35,7 +35,7 @@ export async function GET() {
 
       // Create all gallery items in a transaction
       galleryItems = await prisma.$transaction(
-        defaultGalleryItems.map((item, index) =>
+        defaultGalleryItems.map((item) =>
           prisma.galleryItem.create({
             data: {
               imageUrl: item.imageUrl,

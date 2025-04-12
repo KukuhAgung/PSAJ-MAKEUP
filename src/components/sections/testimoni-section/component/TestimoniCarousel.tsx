@@ -7,9 +7,10 @@ import "swiper/css/free-mode";
 import "swiper/css/mousewheel";
 import { TestimoniCard } from "./TestimoniCard";
 import { CarouselAction } from "./CarouselAction";
-import { useState } from "react";
+import React, { useState } from "react";
+import { ITestimoniCarouselProps } from "../index.model";
 
-export const TestimoniCarousel = () => {
+export const TestimoniCarousel: React.FC<ITestimoniCarouselProps> = ({ items}) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -21,9 +22,9 @@ export const TestimoniCarousel = () => {
       onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
       className="w-full overflow-hidden"
     >
-      {Array.from({ length: 4 }).map((_, index) => (
-        <SwiperSlide key={index}>
-          <TestimoniCard />
+      {items.map((item) => (
+        <SwiperSlide key={item.id}>
+          <TestimoniCard item={item} />
         </SwiperSlide>
       ))}
       <CarouselAction activeIndex={activeIndex} />

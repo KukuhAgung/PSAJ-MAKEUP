@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import { writeFile } from "fs/promises"
 import type { NextRequest } from "next/server"
 import path from "path"

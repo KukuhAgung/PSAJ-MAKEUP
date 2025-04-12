@@ -20,6 +20,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ src, onSave }) => {
     if (containerRef.current) {
       const { width, height } = containerRef.current.getBoundingClientRect()
       setContainerSize({ width, height })
+      
     }
 
     const img = document.createElement("img")
@@ -33,6 +34,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ src, onSave }) => {
         setScale(initialScale)
       }
     }
+    console.log(containerSize);
+    
     img.src = src
   }, [src])
 

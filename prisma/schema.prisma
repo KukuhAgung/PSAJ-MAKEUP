@@ -19,7 +19,6 @@ model User {
   updatedAt    DateTime      @updatedAt
   authProvider AuthProvider?
   reviews      Review[]
-  transactions Transaction[]
 }
 
 model AuthProvider {
@@ -35,45 +34,13 @@ model AuthProvider {
   user           User     @relation(fields: [userId], references: [id])
 }
 
-model Product {
-  id               Int              @id @default(autoincrement())
-  productName      String
-  category         String?
-  description      String?
-  specialTreatment String?
-  productServices  ProductService[]
-  Transaction      Transaction[]
-}
-
-model ProductService {
-  id        Int     @id @default(autoincrement())
-  productId Int
-  feature   String?
-  pricelist Int?
-  product   Product @relation(fields: [productId], references: [id])
-}
-
-model Transaction {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  productId  Int
-  totalPrice Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  Review     Review[]
-  product    Product  @relation(fields: [productId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
-}
-
 model Review {
   id            Int         @id @default(autoincrement())
   userId        Int
-  transactionId Int
-  stars         StarRating
+  category      String
+  stars         Int
   comment       String?
-  anonym        Boolean
   createdAt     DateTime    @default(now())
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
   user          User        @relation(fields: [userId], references: [id])
 }
 
@@ -163,12 +130,4 @@ model GalleryItem {
 enum UserRole {
   ADMIN
   USER
-}
-
-enum StarRating {
-  ONE
-  TWO
-  THREE
-  FOUR
-  FIVE
 }

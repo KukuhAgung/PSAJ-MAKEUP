@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useEffect, useState } from "react"
@@ -53,7 +54,7 @@ export default function Product() {
     }
 
     fetchProducts()
-  }, [])
+  }, [getCategory])
 
   // Function to update product in state and API
   const updateProduct = async (updatedProduct: IProductData) => {

@@ -1,10 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
 import Badge from "../../molecules/badge/Badge";
-import { Admin, ArrowDownIcon, ArrowUpIcon, BoxIconLine, GroupIcon, Testimoni } from "@/icons";
+import {
+  Admin,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  BoxIconLine,
+  GroupIcon,
+  Testimoni,
+} from "@/icons";
 import { formatRupiah } from "@/app/admin/(menus)/finance/utils";
+import { useApi } from "@/hooks/useFetchApi";
+import { IResponseAPI } from "@/lib/index.model";
+import { IReviewsApiResponse } from "@/components/sections/testimoni-section/index.model";
+import { User } from "@prisma/client";
+
+interface IAdminsApiResponse {
+  admin: User[];
+  totalCount: number;
+}
 
 export const EcommerceMetrics = () => {
+  const { trigger: triggerReview } = useApi("/api/user-service/reviews");
+  const { trigger: triggerAdmin } = useApi("/api/user-service/reviews");
+  const [reviews, setReviews] = useState<IResponseAPI<IReviewsApiResponse>>();
+  const [admins, setAdmins] = useState<IResponseAPI<IAdminsApiResponse>>();
   const [totalSales, setTotalSales] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [percentageChange, setPercentageChange] = useState(0);
@@ -12,6 +32,16 @@ export const EcommerceMetrics = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    triggerReview(
+      { method: "GET", data: { page: 1, size: 10 } },
+      { onSuccess: (data) => setReviews(data) },
+    );
+
+    triggerAdmin(
+      { method: "GET"},
+      { onSuccess: (data) => setAdmins(data) },
+    );
+
     const fetchSummaryData = async () => {
       try {
         setIsLoading(true);
@@ -23,7 +53,8 @@ export const EcommerceMetrics = () => {
         }
         const resultSales = await responseSales.json();
         if (resultSales.code === 200 && resultSales.data) {
-          const { totalAmount, totalSales, percentageChange } = resultSales.data;
+          const { totalAmount, totalSales, percentageChange } =
+            resultSales.data;
           setTotalSales(totalAmount);
           setTotalItems(totalSales);
           setPercentageChange(percentageChange);
@@ -49,16 +80,18 @@ export const EcommerceMetrics = () => {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-4">
       {/* <!-- Customers Metric --> */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 relative overflow-hidden">
-        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-          <GroupIcon className="text-gray-800 size-6 dark:text-white/90" />
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+          <GroupIcon className="size-6 text-gray-800 dark:text-white/90" />
         </div>
-        <div className="flex items-end justify-between mt-5">
+        <div className="mt-5 flex items-end justify-between">
           <div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">Pengguna</span>
-            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Pengguna
+            </span>
+            <h4 className="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">
               {isLoading ? "Loading..." : totalUsers}
             </h4>
           </div>
@@ -66,17 +99,21 @@ export const EcommerceMetrics = () => {
       </div>
 
       {/* <!-- Orders Metric --> */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 relative overflow-hidden">
-        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
           <BoxIconLine className="text-gray-800 dark:text-white/90" />
         </div>
-        <div className="flex items-end justify-between mt-5">
+        <div className="mt-5 flex items-end justify-between">
           <div className="max-w-[65%]">
-            <span className="text-sm text-gray-500 dark:text-gray-400">Total Penjualan</span>
-            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90 truncate">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Total Penjualan
+            </span>
+            <h4 className="mt-2 truncate text-title-sm font-bold text-gray-800 dark:text-white/90">
               {isLoading ? "Loading..." : formatRupiah(totalSales)}
             </h4>
-            <p className="text-xs text-gray-500 mt-1 truncate">{isLoading ? "" : `${totalItems} item terjual`}</p>
+            <p className="mt-1 truncate text-xs text-gray-500">
+              {isLoading ? "" : `${totalItems} item terjual`}
+            </p>
           </div>
           <div className="flex-shrink-0" style={{ maxWidth: "35%" }}>
             {percentageChange >= 0 ? (
@@ -93,38 +130,46 @@ export const EcommerceMetrics = () => {
       </div>
 
       {/* <!-- Testimoni Metric --> */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 relative overflow-hidden">
-        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-          <Testimoni className="text-gray-800 size-6 dark:text-white/90" />
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+          <Testimoni className="size-6 text-gray-800 dark:text-white/90" />
         </div>
-        <div className="flex items-end justify-between mt-5">
+        <div className="mt-5 flex items-end justify-between">
           <div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">Testimoni</span>
-            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">1,245</h4>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Testimoni
+            </span>
+            <h4 className="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">
+              {isLoading ? "Loading..." : reviews?.data.totalCount}
+            </h4>
           </div>
-          <div className="flex-shrink-0">
+          {/* <div className="flex-shrink-0">
             <Badge color="success" startIcon={<ArrowUpIcon />}>
               7.89%
             </Badge>
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* <!-- Total Admin Metric --> */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 relative overflow-hidden">
-        <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-          <Admin className="text-gray-800 size-6 dark:text-white/90" />
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+          <Admin className="size-6 text-gray-800 dark:text-white/90" />
         </div>
-        <div className="flex items-end justify-between mt-5">
+        <div className="mt-5 flex items-end justify-between">
           <div>
-            <span className="text-sm text-gray-500 dark:text-gray-400">Total Admin</span>
-            <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">15</h4>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              Total Admin
+            </span>
+            <h4 className="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">
+              {isLoading ? "Loading..." : admins?.data.totalCount}
+            </h4>
           </div>
-          <div className="flex-shrink-0">
+          {/* <div className="flex-shrink-0">
             <Badge color="info" startIcon={<ArrowUpIcon />}>
               2.5%
             </Badge>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import Button from "@/components/molecules/button/Button"
 import type React from "react"

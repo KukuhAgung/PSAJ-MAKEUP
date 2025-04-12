@@ -9,19 +9,36 @@ type FetcherArgs = {
 };
 
 const fetcher = async (url: string, { arg }: { arg: FetcherArgs }) => {
-  const { method = arg.method, body, headers = {} } = arg;
+  const { method = "GET", body, headers = {}, data } = arg;
 
-  const res = await fetch(url, {
+  const urlWithParams = new URL(url, window.location.origin);
+  if (data && typeof data === "object") {
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        urlWithParams.searchParams.append(key, String(value));
+      }
+    });
+  }
+
+  const isFormData = body instanceof FormData;
+  const finalHeaders = isFormData
+    ? headers
+    : { "Content-Type": "application/json", ...headers };
+
+  const res = await fetch(urlWithParams.toString(), {
     method,
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
-    body: body ? JSON.stringify(body) : undefined,
+    headers: finalHeaders,
+    body: isFormData ? body : body ? JSON.stringify(body) : undefined,
   });
 
   if (!res.ok) {
-    return JSON.stringify({ code: res.status, message: res.statusText, data: null });
+    const errorData = await res.json();
+    throw new Error(
+      JSON.stringify({
+        code: res.status,
+        message: errorData.message || res.statusText,
+      }),
+    );
   }
 
   return res.json();

@@ -101,17 +101,23 @@ export default function UserManagementTable() {
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-300 bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-900">
-      <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+      <h3 className="mb-4 text-xl font-semibold text-gray-800 dark:text-white">
         Pengguna
       </h3>
       <Table className="w-full border-collapse">
-        <TableHeader className="bg-gray-100 dark:bg-gray-800 text-left">
+        <TableHeader className="bg-gray-100 text-left dark:bg-gray-800">
           <TableRow>
-            {["Username", "Email", "Password", "No Telpon", "Role", "Edit"].map((header) => (
-              <TableCell key={header} isHeader className="py-3 px-4 font-semibold text-gray-700 dark:text-white">
-                {header}
-              </TableCell>
-            ))}
+            {["Username", "Email", "Password", "No Telpon", "Role", "Edit"].map(
+              (header) => (
+                <TableCell
+                  key={header}
+                  isHeader
+                  className="px-4 py-3 font-semibold text-gray-700 dark:text-white"
+                >
+                  {header}
+                </TableCell>
+              ),
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -139,19 +145,25 @@ export default function UserManagementTable() {
             </TableRow>
           ) : (
             users.map((user) => (
-              <TableRow key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition">
-                <TableCell className="py-3 px-4">{user.username}</TableCell>
-                <TableCell className="py-3 px-4">{user.email}</TableCell>
-                <TableCell className="py-3 px-4">{user.password}</TableCell>
-                <TableCell className="py-3 px-4">{user.phone}</TableCell>
-                <TableCell className="py-3 px-4">
+              <TableRow
+                key={user.id}
+                className="transition hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <TableCell className="px-4 py-3">{user.username}</TableCell>
+                <TableCell className="px-4 py-3">{user.email}</TableCell>
+                <TableCell className="px-4 py-3">{user.password}</TableCell>
+                <TableCell className="px-4 py-3">{user.phone}</TableCell>
+                <TableCell className="px-4 py-3">
                   <Badge color={user.role === "Admin" ? "success" : "warning"}>
                     {user.role}
                   </Badge>
                 </TableCell>
-                <TableCell className="py-3 px-4">
-                  <button onClick={() => openModal(user)} className="text-blue-500 hover:text-blue-700">
-                    <EditTabel className="w-5 h-5" />
+                <TableCell className="px-4 py-3">
+                  <button
+                    onClick={() => openModal(user)}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <EditTabel className="h-5 w-5" />
                   </button>
                 </TableCell>
               </TableRow>
@@ -161,9 +173,13 @@ export default function UserManagementTable() {
       </Table>
 
       {/* Modal Edit */}
-      <Dialog open={isOpen} onClose={closeModal} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-        <div className="bg-white dark:bg-gray-900 p-6 rounded-lg w-[500px] shadow-xl">
-          <Dialog.Title className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+      <Dialog
+        open={isOpen}
+        onClose={closeModal}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      >
+        <div className="w-[500px] rounded-lg bg-white p-6 shadow-xl dark:bg-gray-900">
+          <Dialog.Title className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
             Edit Pengguna
           </Dialog.Title>
           {selectedUser && (
@@ -175,9 +191,12 @@ export default function UserManagementTable() {
                     type="text"
                     value={selectedUser.username}
                     onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, username: e.target.value })
+                      setSelectedUser({
+                        ...selectedUser,
+                        username: e.target.value,
+                      })
                     }
-                    className="border w-full p-2 rounded bg-white dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded border bg-white p-2 dark:bg-gray-800 dark:text-white"
                   />
                 </label>
 
@@ -187,9 +206,12 @@ export default function UserManagementTable() {
                     type="email"
                     value={selectedUser.email}
                     onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, email: e.target.value })
+                      setSelectedUser({
+                        ...selectedUser,
+                        email: e.target.value,
+                      })
                     }
-                    className="border w-full p-2 rounded bg-white dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded border bg-white p-2 dark:bg-gray-800 dark:text-white"
                   />
                 </label>
 
@@ -199,9 +221,12 @@ export default function UserManagementTable() {
                     type="text"
                     value={selectedUser.phone}
                     onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, phone: e.target.value })
+                      setSelectedUser({
+                        ...selectedUser,
+                        phone: e.target.value,
+                      })
                     }
-                    className="border w-full p-2 rounded bg-white dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded border bg-white p-2 dark:bg-gray-800 dark:text-white"
                   />
                 </label>
 
@@ -212,7 +237,7 @@ export default function UserManagementTable() {
                     onChange={(e) =>
                       setSelectedUser({ ...selectedUser, role: e.target.value })
                     }
-                    className="border p-2 rounded bg-white dark:bg-gray-800 dark:text-white"
+                    className="rounded border bg-white p-2 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="Admin">Admin</option>
                     <option value="User">User</option>
@@ -223,13 +248,13 @@ export default function UserManagementTable() {
               <div className="mt-6 flex justify-end gap-4">
                 <button
                   onClick={closeModal}
-                  className="text-gray-700 dark:text-white px-4 py-2 bg-gray-200 dark:bg-gray-800 rounded-lg hover:bg-gray-300"
+                  className="rounded-lg bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-white"
                 >
                   Batal
                 </button>
                 <button
                   onClick={handleUpdateUser}
-                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-700 transition"
+                  className="rounded-lg bg-primary-500 px-4 py-2 text-white transition hover:bg-primary-700"
                 >
                   Simpan
                 </button>

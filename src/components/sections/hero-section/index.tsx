@@ -1,10 +1,14 @@
 "use client";
 import Button from "@/components/molecules/button/Button";
 import Image from "next/image";
-import { Rozha_One } from 'next/font/google';
+import { Rozha_One } from "next/font/google";
 import { StarIcon } from "@/icons";
 import Avatar from "@/components/molecules/avatar/Avatar";
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { IResponseAPI } from "@/lib/index.model";
+import { IReviewsApiResponse } from "../testimoni-section/index.model";
+import { useApi } from "@/hooks/useFetchApi";
 
 const rozha = Rozha_One({
   weight: "400",
@@ -12,17 +16,28 @@ const rozha = Rozha_One({
 });
 
 export const HeroSection = () => {
-  const [heroImage, setHeroImage] = useState<string>("/images/grid-image/hero-image.png");
+  const { trigger } = useApi("/api/user-service/reviews");
+  const [reviews, setReviews] = useState<IResponseAPI<IReviewsApiResponse>>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState<string | null>(null);
 
   // Fetch current hero image on component mount
   useEffect(() => {
+    trigger(
+      { method: "GET", data: { page: 1, size: 10 } },
+      { onSuccess: (data) => setReviews(data) },
+    );
+
     const fetchHeroImage = async () => {
       try {
-        const response = await fetch('/api/hero');
+        const response = await fetch("/api/hero");
         const data = await response.json();
-        
+
         if (data.code === 200 && data.data) {
           setHeroImage(data.data.imageUrl);
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 500);
         }
       } catch (error) {
         console.error("Error fetching hero image:", error);
@@ -34,7 +49,7 @@ export const HeroSection = () => {
 
   return (
     <section className="relative grid min-h-[90vh] w-full grid-cols-2 items-center rounded-xl bg-gradient-to-l from-primary-500 via-primary-50 to-primary-25 p-10">
-      <div className="absolute -right-14 -bottom-56 -z-10 h-[500px] w-[435px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[86px]"></div>
+      <div className="absolute -bottom-56 -right-14 -z-10 h-[500px] w-[435px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[86px]"></div>
       <article className="flex flex-col gap-y-8">
         <div className="flex flex-col gap-y-2">
           <p className="text-sm font-medium text-black dark:text-white/90">
@@ -60,12 +75,16 @@ export const HeroSection = () => {
         </div>
         <div className="flex w-fit gap-x-4">
           <div className="flex items-center">
-            {Array.from({ length: 3 }).map((_, index) => (
+            {reviews?.data.reviews.slice(0, 3).map((item, index) => (
               <div
                 key={index}
                 className={`relative rounded-full border-2 border-white ${index !== 0 ? "-ml-4" : ""}`}
               >
-                <Avatar src="/images/user/user-01.jpg" size="xxlarge" />
+                {item.user.image !== null ? (
+                  <Avatar src={item.user.image} size="xxlarge" />
+                ) : (
+                  <div className="h-[50px] w-[50px] rounded-full bg-[#D9D9D9]"></div>
+                )}
               </div>
             ))}
           </div>
@@ -74,10 +93,16 @@ export const HeroSection = () => {
               {Array.from({ length: 5 }).map((_, index) => (
                 <StarIcon key={index} />
               ))}
-              4.7
+              {reviews?.data.averageRating}
             </div>
             <p className="text-sm text-black opacity-45 dark:text-white/90">
-              from 5,000+ <span className="font-bold underline">reviews</span>
+              from{" "}
+              {reviews && reviews.data.totalCount > 5000
+                ? "5000+"
+                : reviews?.data.totalCount}{" "}
+              <Link href="#testimoni" className="font-bold underline">
+                reviews
+              </Link>
             </p>
           </div>
         </div>
@@ -100,11 +125,18 @@ export const HeroSection = () => {
             <Image
               priority
               alt="hero-img"
-              src={heroImage || "/placeholder.svg"}
+              src={heroImage || "/images/grid-image/hero.png"}
               width={490}
               height={490}
               className="mask-image relative drop-shadow-2xl"
             />
+
+            {/* Loading Indicator */}
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-xl">
+                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-white"></div>
+              </div>
+            )}
           </div>
         </div>
       </aside>

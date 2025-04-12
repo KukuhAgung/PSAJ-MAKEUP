@@ -15,9 +15,7 @@ export default function Ecommerce() {
 
         <MonthlySalesChart />
       </div>
-
       
-
       <div className="col-span-12">
         <StatisticsChart />
       </div>
