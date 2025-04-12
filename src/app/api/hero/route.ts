@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     // Get the first hero section record or create a default one if none exists
     let heroSection = await prisma.heroSection.findFirst();

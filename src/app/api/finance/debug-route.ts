@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
 // Endpoint debugging sederhana untuk memeriksa koneksi database
-export async function GET(request: Request) {
+export async function GET() {
   try {
     // Periksa apakah variabel lingkungan DATABASE_URL ada
     const dbUrl = process.env.DATABASE_URL

@@ -1,9 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { NextResponse } from "next/server";
+
+import { NextRequest, NextResponse } from "next/server";
+import { verifyToken } from "./lib/auth";
 
 export async function middleware() {
   // const token = req.cookies.get("token");
-  // const parseToken = await verifyToken(token?.value || "") as any;
+  //  const parseToken = await verifyToken(token?.value || "") as any;
 
   // const absoluteURL = new URL("/", req.nextUrl.origin);
   // if (!token) {
@@ -15,5 +16,5 @@ export async function middleware() {
   //   return NextResponse.redirect(absoluteURL.toString());
   // }
 
-  return NextResponse.next();
+  // return NextResponse.next();
 }

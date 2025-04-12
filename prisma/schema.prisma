@@ -95,6 +95,69 @@ model HeroSection {
   updatedAt DateTime @updatedAt
 }
 
+model ProductSection {
+  id        Int      @id @default(autoincrement())
+  category  String
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model PortfolioSection {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model DescriptionSection {
+  id        Int      @id @default(autoincrement())
+  videoUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model HeroProduct {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ItemProduct {
+  id          String          @id @default(cuid())
+  title       String
+  subtitle    String
+  banner      String
+  description String
+  category    String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  galleryItems GalleryProduct[]
+}
+
+model GalleryProduct {
+  id        String      @id @default(cuid())
+  image     String
+  productId String
+  product   ItemProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model HeroGallery {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryItem {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 
 enum UserRole {

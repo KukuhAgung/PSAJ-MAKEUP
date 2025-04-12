@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
@@ -12,7 +14,7 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 });
 
 export default function MonthlySalesChart() {
-  const [options, setOptions] = useState<ApexOptions>({
+  const [options, ] = useState<ApexOptions>({
     colors: ["#465fff"],
     chart: {
       fontFamily: "Outfit, sans-serif",

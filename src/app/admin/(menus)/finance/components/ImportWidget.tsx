@@ -1,4 +1,5 @@
 "use client"
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type React from "react"
 
@@ -37,7 +38,6 @@ interface ImportWidgetProps {
 export function ImportWidget({
   handleExportAllData,
   handleMonthlyFileUpload,
-  handleAddIncome,
   isSubmitting,
   newIncome,
   setNewIncome,

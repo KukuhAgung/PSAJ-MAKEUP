@@ -2,25 +2,87 @@
 import Image from "next/image"
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Mousewheel } from "swiper/modules"
 import AnimateButton from "@/components/molecules/animate-button/AnimateButton"
 import { Edit_foto } from "@/icons"
 import type { CarouselProps } from "./index.model"
+import ImageEditor from "./ImageEditor"
 
 import "swiper/css"
 import "swiper/css/free-mode"
 import "swiper/css/mousewheel"
 
+// Toast notification component
+const Toast = ({ message, type, onClose }: { message: string; type: "success" | "error"; onClose: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose()
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [onClose])
+
+  return (
+    <div
+      className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg ${
+        type === "success" ? "bg-primary-500 text-white" : "bg-red-500 text-white"
+      }`}
+    >
+      {message}
+    </div>
+  )
+}
+
 export const ProductCarousel: React.FC<CarouselProps> = ({ items }) => {
   const [products, setProducts] = useState(items)
+  const [isLoading, setIsLoading] = useState<number | null>(null)
+  const [showConfirmation, setShowConfirmation] = useState<number | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [tempPreview, setTempPreview] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
+  const [cropData, setCropData] = useState<{
+    x: number
+    y: number
+    width: number
+    height: number
+    scale: number
+  } | null>(null)
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([])
 
+  // Fetch products on component mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/product")
+        const data = await response.json()
+
+        if (data.code === 200 && data.data) {
+          // Map the API data to match our component's expected format
+          const mappedProducts = data.data.map((product: any) => ({
+            id: product.id,
+            image: product.imageUrl,
+            button: product.category,
+          }))
+          setProducts(mappedProducts)
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error)
+      }
+    }
+
+    fetchProducts()
+  }, [])
+
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type })
+  }
+
   const handleEditClick = (index: number, e: React.MouseEvent) => {
-    // Mencegah event propagasi ke elemen lain
-    e.stopPropagation();
-    
+    // Prevent event propagation to other elements
+    e.stopPropagation()
+
     if (fileInputRefs.current[index]) {
       fileInputRefs.current[index]?.click()
     }
@@ -30,56 +92,189 @@ export const ProductCarousel: React.FC<CarouselProps> = ({ items }) => {
     const file = event.target.files?.[0]
     if (!file) return
 
+    // Create a temporary preview
     const imageUrl = URL.createObjectURL(file)
+    setTempPreview(imageUrl)
+    setSelectedFile(file)
+    setShowConfirmation(productId)
+    setCropData(null) // Reset crop data for new image
+  }
 
-    // Update the product image
-    setProducts((prevProducts) =>
-      prevProducts.map((product) => (product.id === productId ? { ...product, image: imageUrl } : product)),
-    )
+  const handleCropSave = (data: { x: number; y: number; width: number; height: number; scale: number }) => {
+    setCropData(data)
+  }
+
+  const handleConfirmUpload = async () => {
+    if (!selectedFile || showConfirmation === null) return
+
+    const productId = showConfirmation
+
+    try {
+      setIsLoading(productId)
+      setShowConfirmation(null)
+
+      // Update the UI immediately with the temporary preview
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId ? { ...product, image: tempPreview || product.image } : product,
+        ),
+      )
+
+      // Upload the file
+      const formData = new FormData()
+      formData.append("file", selectedFile)
+      formData.append("productId", productId.toString())
+
+      // Add crop data if available
+      if (cropData) {
+        formData.append("cropData", JSON.stringify(cropData))
+      }
+
+      const uploadResponse = await fetch("/api/product/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      const uploadData = await uploadResponse.json()
+
+      if (uploadData.code !== 200) {
+        throw new Error(uploadData.message)
+      }
+
+      // Update the database with the new image URL
+      const updateResponse = await fetch("/api/product/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: productId,
+          imageUrl: uploadData.data.url,
+        }),
+      })
+
+      const updateData = await updateResponse.json()
+
+      if (updateData.code !== 200) {
+        throw new Error(updateData.message)
+      }
+
+      // Update the product in state with the final URL from the server
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === productId ? { ...product, image: uploadData.data.url } : product,
+        ),
+      )
+
+      showToast("Product image updated successfully", "success")
+    } catch (error) {
+      console.error("Error updating product image:", error)
+      showToast("Failed to update product image", "error")
+    } finally {
+      setIsLoading(null)
+      setSelectedFile(null)
+      setCropData(null)
+      if (tempPreview) {
+        URL.revokeObjectURL(tempPreview)
+        setTempPreview(null)
+      }
+    }
+  }
+
+  const handleCancelUpload = () => {
+    setShowConfirmation(null)
+    setSelectedFile(null)
+    setCropData(null)
+    if (tempPreview) {
+      URL.revokeObjectURL(tempPreview)
+      setTempPreview(null)
+    }
   }
 
   return (
-    <Swiper
-      spaceBetween={20}
-      slidesPerView={3}
-      mousewheel={{ forceToAxis: true }}
-      scrollbar={{ draggable: true }}
-      modules={[Mousewheel]}
-      className="w-full overflow-hidden"
-    >
-      {products.map((item, index) => (
-        <SwiperSlide key={item.id} className="relative">
-          <div className="relative">
-            <Image
-              loading="lazy"
-              alt={`product-${item.id}`}
-              src={item.image || "/placeholder.svg"}
-              width={500}
-              height={500}
-              className="h-[590px] w-full rounded-lg object-cover"
-            />
-            {/* Mengadopsi style tombol edit dari Hero Section */}
-            <button
-              onClick={(e) => handleEditClick(index, e)}
-              className="absolute top-4 right-4 bg-primary-500 p-2 rounded-full shadow-lg hover:bg-primary-700 transition z-10"
-            >
-              <Edit_foto className="text-white w-6 h-6" />
-            </button>
-            <input
-              type="file"
-              accept="image/*"
-              ref={(el) => {
-                fileInputRefs.current[index] = el
-              }}
-              onChange={(e) => handleFileChange(e, item.id)}
-              className="hidden"
-            />
+    <>
+      <Swiper
+        spaceBetween={20}
+        slidesPerView={3}
+        mousewheel={{ forceToAxis: true }}
+        scrollbar={{ draggable: true }}
+        modules={[Mousewheel]}
+        className="w-full overflow-hidden"
+      >
+        {products.map((item, index) => (
+          <SwiperSlide key={item.id} className="relative">
+            <div className="relative">
+              <Image
+                loading="lazy"
+                alt={`product-${item.id}`}
+                src={item.image || "/placeholder.svg"}
+                width={500}
+                height={500}
+                className="h-[590px] w-full rounded-lg object-cover"
+              />
+              {/* Edit button */}
+              <button
+                onClick={(e) => handleEditClick(index, e)}
+                className="absolute top-4 right-4 bg-primary-500 p-2 rounded-full shadow-lg hover:bg-primary-700 transition z-10"
+                disabled={isLoading !== null}
+              >
+                <Edit_foto className="text-white w-6 h-6" />
+              </button>
+              {/* Loading indicator */}
+              {isLoading === item.id && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                ref={(el) => {
+                  fileInputRefs.current[index] = el
+                }}
+                onChange={(e) => handleFileChange(e, item.id)}
+                className="hidden"
+                disabled={isLoading !== null}
+              />
+            </div>
+            <div className="absolute inset-0 flex items-end justify-center pb-10">
+              <AnimateButton>{item.button}</AnimateButton>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {/* Confirmation Popup with Image Editor */}
+      {showConfirmation !== null && tempPreview && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl p-6 shadow-lg max-w-md w-full">
+            <div className="flex flex-col gap-y-4">
+              <h3 className="text-xl font-bold text-black">Konfirmasi Perubahan Gambar</h3>
+
+              {/* Image Editor Component */}
+              <ImageEditor src={tempPreview || "/placeholder.svg"} onSave={handleCropSave} />
+
+              <div className="flex gap-x-4 justify-end mt-2">
+                <button
+                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-100 transition"
+                  onClick={handleCancelUpload}
+                >
+                  Batal
+                </button>
+                <button
+                  className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition"
+                  onClick={handleConfirmUpload}
+                >
+                  Konfirmasi
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="absolute inset-0 flex items-end justify-center pb-10">
-            <AnimateButton>{item.button}</AnimateButton>
-          </div>
-        </SwiperSlide>
-      ))}
-    </Swiper>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    </>
   )
 }
