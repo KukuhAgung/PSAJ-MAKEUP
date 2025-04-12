@@ -53,7 +53,7 @@ export const Navbar = () => {
         },
       );
     }
-  }, [token]);
+  }, [trigger,token]);
 
   return (
     <motion.header

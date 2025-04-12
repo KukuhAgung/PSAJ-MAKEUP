@@ -1,4 +1,6 @@
 "use client"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState, useEffect, useCallback } from "react"
 import type React from "react"
 
@@ -58,49 +60,46 @@ export default function IncomeDashboard() {
   const API_URL = "/api/finance"
 
   // Perbaiki fungsi fetchIncomeData untuk memastikan filter berfungsi dengan benar
-  const fetchIncomeData = async () => {
-    setIsLoading(true)
+  const fetchIncomeData = useCallback(async () => {
+    setIsLoading(true);
     try {
-      let url = API_URL
+      let url = API_URL;
       if (selectedMonth !== "all") {
-        const monthNumber = getMonthNumber(selectedMonth)
-        url += `?month=${monthNumber}&year=${selectedYear}`
-        console.log(`Fetching data with filter: month=${monthNumber}, year=${selectedYear}`)
+        const monthNumber = getMonthNumber(selectedMonth);
+        url += `?month=${monthNumber}&year=${selectedYear}`;
       }
-
-      const response = await fetch(url)
-
-      // Check if response is OK before parsing JSON
+  
+      const response = await fetch(url);
+      
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`)
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
-      const result = await response.json()
-
-      if (result.code === 200) {
-        // Transform dates from ISO to string format
-        const formattedData = result.data.map((item: any) => ({
-          ...item,
-          date: new Date(item.date).toISOString().split("T")[0],
-        }))
-        console.log(`Received ${formattedData.length} records from API`)
-        setIncomeData(formattedData)
-      } else {
-        showNotification("error", "Error", result.message || "Failed to fetch income data")
+  
+      const result = await response.json();
+      
+      // Validate response structure
+      if (!result || typeof result !== 'object' || !result.data) {
+        throw new Error('Invalid API response format');
       }
+  
+      // Use data directly from API without additional formatting
+      setIncomeData(result.data);
+      
     } catch (error) {
-      console.error("Error fetching income data:", error)
-      showNotification("error", "Error", "Failed to fetch income data")
+      console.error("Error fetching income data:", error);
+      showNotification("error", "Error", "Failed to fetch income data");
+      setIncomeData([]); // Clear data on error
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  }, [selectedMonth, selectedYear]); // Removed fetchIncomeData from dependencies
 
   // Pastikan useEffect dipanggil ketika filter berubah
+  
   useEffect(() => {
     console.log(`Filter changed: month=${selectedMonth}, year=${selectedYear}`)
     fetchIncomeData()
-  }, [selectedMonth, selectedYear])
+  }, [fetchIncomeData,selectedMonth, selectedYear])
 
   // Perbaiki fungsi handleAddIncome untuk menetapkan kategori default
   const handleAddIncome = async () => {

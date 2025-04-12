@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { PrismaClient } from "@prisma/client"
 
 // Endpoint untuk menguji koneksi database dan operasi dasar
-export async function GET(request: Request) {
+export async function GET() {
   console.log("Test DB endpoint called")
 
   const prisma = new PrismaClient({

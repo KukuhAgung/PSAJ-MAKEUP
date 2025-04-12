@@ -1,4 +1,5 @@
 "use client"
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type React from "react"
 import { useEffect } from "react"
@@ -38,7 +39,7 @@ export function ManualForm({ newIncome, setNewIncome, selectedDate, setSelectedD
         category: "Jasa Make Up",
       }))
     }
-  }, [])
+  }, [newIncome.category, setNewIncome])
 
   return (
     <form id="manual-income-form" className="grid gap-4 py-4">

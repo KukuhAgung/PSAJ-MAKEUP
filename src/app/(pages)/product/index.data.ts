@@ -222,7 +222,7 @@ export const Products: IProductData[] = [
     title: "Engangement",
     subtitle:
       "Paket make up yang bisa digunakan di momen pentingmu seperti pertunangan dan foto prewedding.",
-    banner: "/images/product/product-banner-03.png",
+    banner: "/images/product/product-banner-04.png",
     description:
       "Kami menyediakan layanan make up ini untuk acara pertunangan, maupun foto prewedding. Paket ini tersedia mulai Rp 145.000,00 hingga Rp 540.000,00 sesuai yang tertera pada gambar di samping ini!",
     data: [
@@ -258,7 +258,7 @@ export const Products: IProductData[] = [
     title: "Prewedding",
     subtitle:
       "Paket make up yang bisa digunakan di momen pentingmu seperti pertunangan dan foto prewedding.",
-    banner: "/images/product/product-banner-03.png",
+    banner: "/images/product/product-banner-04.png",
     description:
       "Kami menyediakan layanan make up ini untuk acara pertunangan, maupun foto prewedding. Paket ini tersedia mulai Rp 145.000,00 hingga Rp 540.000,00 sesuai yang tertera pada gambar di samping ini!",
     data: [
@@ -318,8 +318,9 @@ export const ProductCategory: IProductCategory[] = [
   },
   {
     id: 6,
-    text: "Maternity",
-    value: "maternity",
+    text: "Birthday",
+    value: "birthday",
+    
   },
   {
     id: 7,

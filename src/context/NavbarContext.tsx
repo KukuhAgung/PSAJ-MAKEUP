@@ -46,7 +46,7 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setActiveMenu(hovered);
     }
-  }, [hovered]);
+  }, [currentPath,hovered]);
 
   useEffect(() => {  
     switch (splitpath[1]) {
@@ -63,7 +63,7 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
         setActiveMenu("Beranda");
         break;
     }
-  }, [path])
+  }, [splitpath,path])
 
   return (
     <NavbarContext.Provider

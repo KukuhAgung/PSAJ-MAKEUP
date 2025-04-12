@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { PrismaClient } from "@prisma/client"
 import { NextResponse } from "next/server"
 
@@ -18,7 +20,7 @@ if (process.env.NODE_ENV === "production") {
   prisma = (global as any).prisma
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE() {
   console.log("DELETE request received to clear all income data")
 
   try {
