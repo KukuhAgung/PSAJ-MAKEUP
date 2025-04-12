@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import type React from "react"
@@ -18,7 +19,7 @@ interface ExtendedCarouselProps extends ICarouselProps {
   productId: string | number
 }
 
-export const Carousel: React.FC<ExtendedCarouselProps> = ({ items, productId, onUpdate }) => {
+export const Carousel: React.FC<ExtendedCarouselProps> = ({ items, onUpdate }) => {
   const fileInputRefs = useRef<HTMLInputElement[]>([])
   const [selectedItemId, setSelectedItemId] = useState<string | number | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)

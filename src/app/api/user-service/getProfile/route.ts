@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { getDecodedToken } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
+import { NextRequest } from "next/server";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
-  const authHeader = request.headers.get("Authorization");
+export async function GET(req: NextRequest) {
+  const token = req.cookies.get("token");
+  const nextAuthToken = req.cookies.get("next-auth.session-token");
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!token && !nextAuthToken) {
     return new Response(
       JSON.stringify({ code: 401, message: "Unauthorized", data: null }),
       {
@@ -15,15 +18,29 @@ export async function GET(request: Request) {
     );
   }
 
-  const token = authHeader.split(" ")[1];
-
+  let decoded: any = null;
+  
+  
   try {
-    const decoded = jwt.verify(token, process.env.NEXTAUTH_SECRET!) as {
-      id: string;
-    };
+    if (token) {
+      decoded = await getDecodedToken(token.value, "token");
+    } else if (nextAuthToken) {
+      decoded = await getDecodedToken(nextAuthToken.value, "next-auth");
+    }
 
+    if (!decoded) {
+      return new Response(
+        JSON.stringify({ code: 401, message: "Invalid token", data: null }),
+        {
+          status: 401,
+        },
+      );
+    }
+
+    const email = await decoded.email || decoded.payload.email;
+    
     const user = await prisma.user.findUnique({
-      where: { id: Number(decoded.id) },
+      where: { email: email },
       select: {
         id: true,
         username: true,
@@ -33,6 +50,7 @@ export async function GET(request: Request) {
         phoneNumber: true,
       },
     });
+
 
     if (!user) {
       return new Response(
@@ -49,8 +67,15 @@ export async function GET(request: Request) {
     );
   } catch (error) {
     console.error("Error fetching profile:", error);
-    return new Response(JSON.stringify({ code: 500, message: "Internal Server Error", data: null }), {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({
+        code: 500,
+        message: "Internal Server Error",
+        data: null,
+      }),
+      {
+        status: 500,
+      },
+    );
   }
 }

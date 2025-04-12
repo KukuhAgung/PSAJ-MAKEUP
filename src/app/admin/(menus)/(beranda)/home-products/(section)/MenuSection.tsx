@@ -10,7 +10,8 @@ export const MenuSection = () => {
 
   const navigateProduct = (value: productCategory) => {
     // Navigate to the product page with the selected category
-    router.push(`/admin/beranda/home-product?name=${value.toLowerCase()}`, { scroll: false })
+    router.push(`/admin/home-products?name=${value.toLowerCase()}`, { scroll: false })
+    localStorage.setItem("category", value.toLowerCase())
   }
 
   return (

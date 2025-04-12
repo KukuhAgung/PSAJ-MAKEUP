@@ -12,5 +12,13 @@ export async function POST() {
     maxAge: 0,
   });
 
+  cokiesStore.set("next-auth.session-token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 0,
+  });
+
   return NextResponse.json({ code: 200, message: "Logged out successfully" });
 }

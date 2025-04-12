@@ -12,7 +12,6 @@ import { UserDropdown } from "../header/UserDropdown";
 import { menus } from "./index.data";
 
 export const Navbar = () => {
-  const token = localStorage.getItem("token");
   const { trigger } = useApi("/api/user-service/getProfile");
   const { setBackdrop, setIsRegister } = useBackdrop();
   const { activeMenu, setActiveMenu, yValue, setHovered } = useNavbar();
@@ -36,24 +35,21 @@ export const Navbar = () => {
   };
 
   useEffect(() => {
-    if (token) {
-      trigger(
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+    trigger(
+      {
+        method: "GET",
+      },
+      {
+        onSuccess: (res) => {
+          setData(res.data);
+          setIsLogin(true);
         },
-        {
-          onSuccess: (res) => {
-            setData(res.data);
-            setIsLogin(true);
-          },
+        onError: (err) => {
+          console.log(err);
         },
-      );
-    }
-  }, [trigger,token]);
+      },
+    );
+  }, []);
 
   return (
     <motion.header
@@ -87,9 +83,10 @@ export const Navbar = () => {
               setIsOpen={setOpen}
               image={data.image}
               username={data.username}
+              id={data.id}
               email={data.email}
               editProfile
-              accountSettings
+              inputReview
             />
           ) : (
             <>
