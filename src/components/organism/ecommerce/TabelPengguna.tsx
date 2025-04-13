@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -19,6 +18,7 @@ interface User {
   password: string;
   phone: string;
   role: string;
+  reviewQuota: number;
 }
 
 export default function UserManagementTable() {
@@ -32,17 +32,19 @@ export default function UserManagementTable() {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/tabeluser');
-        
+        const response = await fetch("/api/tabeluser");
+
         if (!response.ok) {
           throw new Error(`Failed to fetch users: ${response.status}`);
         }
-        
+
         const result = await response.json();
         setUsers(result.data);
       } catch (err) {
         console.error("Error fetching users:", err);
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred",
+        );
       } finally {
         setLoading(false);
       }
@@ -63,32 +65,33 @@ export default function UserManagementTable() {
 
   const handleUpdateUser = async () => {
     if (!selectedUser) return;
-    
+
     try {
       const response = await fetch(`/api/tabeluser/${selectedUser.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: selectedUser.username,
           email: selectedUser.email,
           phoneNumber: selectedUser.phone,
           role: selectedUser.role === "Admin" ? "ADMIN" : "USER",
+          reviewQuota: selectedUser.reviewQuota,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update user');
+        throw new Error("Failed to update user");
       }
 
       // Update the local state with the updated user
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
-          user.id === selectedUser.id ? { ...selectedUser } : user
-        )
+          user.id === selectedUser.id ? { ...selectedUser } : user,
+        ),
       );
-      
+
       closeModal();
     } catch (err) {
       console.error("Error updating user:", err);
@@ -97,7 +100,8 @@ export default function UserManagementTable() {
   };
 
   if (loading) return <div className="p-6 text-center">Loading users...</div>;
-  if (error) return <div className="p-6 text-center text-red-500">Error: {error}</div>;
+  if (error)
+    return <div className="p-6 text-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-300 bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-900">
@@ -107,17 +111,23 @@ export default function UserManagementTable() {
       <Table className="w-full border-collapse">
         <TableHeader className="bg-gray-100 text-left dark:bg-gray-800">
           <TableRow>
-            {["Username", "Email", "Password", "No Telpon", "Role", "Edit"].map(
-              (header) => (
-                <TableCell
-                  key={header}
-                  isHeader
-                  className="px-4 py-3 font-semibold text-gray-700 dark:text-white"
-                >
-                  {header}
-                </TableCell>
-              ),
-            )}
+            {[
+              "Username",
+              "Email",
+              "Password",
+              "No Telpon",
+              "Role",
+              "Review Quota",
+              "Edit",
+            ].map((header) => (
+              <TableCell
+                key={header}
+                isHeader
+                className="px-4 py-3 font-semibold text-gray-700 dark:text-white"
+              >
+                {header}
+              </TableCell>
+            ))}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -128,6 +138,9 @@ export default function UserManagementTable() {
               </TableCell>
               <TableCell className="py-8 text-center text-gray-500">
                 {/* Empty cell with children */}
+                &nbsp;
+              </TableCell>
+              <TableCell className="py-8 text-center text-gray-500">
                 &nbsp;
               </TableCell>
               <TableCell className="py-8 text-center text-gray-500">
@@ -157,6 +170,9 @@ export default function UserManagementTable() {
                   <Badge color={user.role === "Admin" ? "success" : "warning"}>
                     {user.role}
                   </Badge>
+                </TableCell>
+                <TableCell className="px-4 py-3">
+                  {user.reviewQuota || "-"}
                 </TableCell>
                 <TableCell className="px-4 py-3">
                   <button
@@ -230,19 +246,43 @@ export default function UserManagementTable() {
                   />
                 </label>
 
-                <label className="text-sm text-gray-700 dark:text-white">
-                  Role
-                  <select
-                    value={selectedUser.role}
-                    onChange={(e) =>
-                      setSelectedUser({ ...selectedUser, role: e.target.value })
-                    }
-                    className="rounded border bg-white p-2 dark:bg-gray-800 dark:text-white"
-                  >
-                    <option value="Admin">Admin</option>
-                    <option value="User">User</option>
-                  </select>
-                </label>
+                <div className="flex items-center gap-x-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm text-gray-700 dark:text-white">
+                      Role
+                    </label>
+                    <select
+                      value={selectedUser.role}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          role: e.target.value,
+                        })
+                      }
+                      className="min-w-[120px] rounded border bg-white px-3 py-2 dark:bg-gray-800 dark:text-white"
+                    >
+                      <option value="Admin">Admin</option>
+                      <option value="User">User</option>
+                    </select>
+                  </div>
+
+                  <label className="text-sm text-gray-700 dark:text-white">
+                    Kuota Review
+                    <input
+                      type="number"
+                      min={0}
+                      value={selectedUser.reviewQuota}
+                      onChange={(e) =>
+                        setSelectedUser({
+                          ...selectedUser,
+                          reviewQuota: Number(e.target.value),
+                        })
+                      }
+                      placeholder="0"
+                      className="w-full rounded border bg-white p-2 dark:bg-gray-800 dark:text-white"
+                    />
+                  </label>
+                </div>
               </div>
 
               <div className="mt-6 flex justify-end gap-4">

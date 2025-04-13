@@ -7,42 +7,74 @@ import { useApi } from "@/hooks/useFetchApi";
 import { EyeCloseIcon, EyeIcon } from "@/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoPersonCircle } from "react-icons/io5";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 
 const profileSchema = z.object({
-  name: z.string().min(6, "Username minimal 6 karakter"),
+  name: z.string().min(4, "Username minimal 4 karakter"),
   email: z.string().email("Email tidak valid"),
-  address: z.string().min(6, "Alamat minimal 6 karakter"),
+  address: z.string().optional(),
   phoneNumber: z
     .string()
     .regex(
       /^\d{1,14}$/,
       "Nomor HP harus berupa angka dengan maksimal 14 karakter",
     ),
-  password: z.string().min(6, "Password minimal 6 karakter"),
+  password: z.string().optional(),
 });
 
 type ProfileFormType = z.infer<typeof profileSchema>;
 
 export default function Profile() {
-  const router = useRouter();
-  const token = localStorage.getItem("token");
-  const { trigger } = useApi("/api/user-service/getProfile");
+  const { trigger: triggerProfile } = useApi("/api/user-service/getProfile");
+  const { trigger: triggerForm } = useApi("/api/user-service/editProfile");
+  const { trigger: triggerPhoto } = useApi(
+    "/api/user-service/editProfile/upload",
+  );
+  const [editMode, setEditMode] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
+  const [hoveredProfile, setHoveredProfile] = useState(false);
   const [data, setData] = useState<IGetProfileResponseData>();
+  const [tempPreview, setTempPreview] = useState<string | null>(null);
+  const [cropData, setCropData] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    scale: number;
+  } | null>(null);
+  const fileInputRefs = useRef<HTMLInputElement | null>(null);
 
   const {
     register,
+    setValue,
     formState: { errors },
     handleSubmit,
   } = useForm<ProfileFormType>({
     resolver: zodResolver(profileSchema),
   });
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (fileInputRefs.current) {
+      fileInputRefs.current.click();
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const imageUrl = URL.createObjectURL(file);
+
+    setTempPreview(imageUrl);
+    setSelectedFile(file);
+    setCropData(null);
+  };
 
   function formattedPhone(phone: string) {
     const code = "+62";
@@ -52,51 +84,189 @@ export default function Profile() {
     return combinedValue;
   }
 
-  const onSubmit = async (data: ProfileFormType) => {
-    const formattedData = {
-      ...data,
-      phoneNumber: formattedPhone(data.phoneNumber),
-    };
+  const onSubmit = async (dataForm: ProfileFormType) => {
+    try {
+      let photoUrl = "";
+      // Format data form
+      const formattedData = {
+        ...dataForm,
+        phoneNumber: formattedPhone(dataForm.phoneNumber),
+      };
 
-    console.log(formattedData);
+      // Validasi data dan file
+      if (!data) return;
+
+      if (selectedFile) {
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (selectedFile.size > maxSize) {
+          alert("Ukuran file tidak boleh lebih dari 2MB.");
+          return;
+        }
+
+        // Buat FormData untuk upload gambar
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        formData.append("userId", data.id.toString());
+
+        if (cropData) {
+          formData.append("cropData", JSON.stringify(cropData));
+        }
+
+        // Trigger upload gambar
+        await triggerPhoto(
+          {
+            method: "POST",
+            body: formData,
+          },
+          {
+            onSuccess: (data) => {
+              photoUrl = data.data.url;
+            },
+            onError: (error) => {
+              console.error("Error uploading photo:", error.message);
+              alert("Gagal mengupload gambar. Silakan coba lagi.");
+            },
+          },
+        );
+      }
+
+      if (formattedData) {
+        await triggerForm(
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: { ...formattedData, image: photoUrl },
+          },
+          {
+            onSuccess: (res) => {
+              const cleanUsername = formattedData.name
+                ?.replace(/\s+/g, "")
+                .toLowerCase();
+              const storeData = {
+                id: res.id,
+                address: res.address,
+                email: res.email,
+                image: res.image,
+                phoneNumber: res.phoneNumber,
+                username: res.username,
+              };
+              if (data.username !== res.data.username) {
+                localStorage.setItem("user", JSON.stringify(storeData));
+                window.location.href = `/profile/${cleanUsername}`;
+              }
+            },
+            onError: (error) => {
+              console.error("Error updating profile:", error.message);
+              alert("Gagal memperbarui profil. Silakan coba lagi.");
+            },
+          },
+        );
+      }
+    } catch (error) {
+      console.error("Error during form submission:", error);
+    }
   };
 
   useEffect(() => {
-    if (token) {
-      trigger(
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+    triggerProfile(
+      {
+        method: "GET",
+      },
+      {
+        onSuccess: (res) => {
+          setData(res.data);
         },
-        {
-          onSuccess: (res) => {
-            setData(res.data);
-            setIsLogin(true);
-          },
+        onError: (err) => {
+          console.log(err);
         },
-      );
+      },
+    );
+  }, []);
+
+  useEffect(() => {
+    if (data) {
+      setValue("name", data.username);
+      setValue("email", data.email);
+      setValue("phoneNumber", data.phoneNumber.slice(3).trim());
+      setValue("address", data.address);
     }
-  }, [token]);
+  }, [data]);
+
+  useEffect(() => {
+    return () => {
+      if (tempPreview) {
+        URL.revokeObjectURL(tempPreview);
+      }
+    };
+  }, [tempPreview]);
 
   return (
     <section className="flex min-h-[80vh] w-full max-w-[90%] flex-col items-center justify-center gap-y-12 self-center bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:max-w-[80%] lg:p-6">
       <article className="relative flex flex-col items-center gap-y-1">
-        {!isLogin && !data?.image ? (
-          <IoPersonCircle size={80} color="#0B132A" />
+        {!data?.image && !tempPreview ? (
+          <div
+            onMouseEnter={() => setHoveredProfile(true)}
+            onMouseLeave={() => setHoveredProfile(false)}
+            className="relative w-fit cursor-pointer"
+          >
+            <IoPersonCircle
+              opacity={hoveredProfile ? 0.5 : 1}
+              size={80}
+              color="#0B132A"
+            />
+            {hoveredProfile && editMode ? (
+              <button
+                onClick={(e) => handleEditClick(e)}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-sm font-semibold text-gray-800 dark:text-white/90"
+              >
+                {!data?.image ? "Upload Foto" : "Ganti Foto"}
+              </button>
+            ) : null}
+            <input
+              type="file"
+              accept="image/*"
+              ref={(el) => {
+                fileInputRefs.current = el;
+              }}
+              onChange={(e) => handleFileChange(e)}
+              className="hidden"
+            />
+          </div>
         ) : (
-          <Image
-            width={52}
-            height={52}
-            src={data?.image || "/images/user/owner.jpg"}
-            alt="User"
-            className="h-[52px] w-[52px] rounded-full"
-          />
+          <div
+            onMouseEnter={() => setHoveredProfile(true)}
+            onMouseLeave={() => setHoveredProfile(false)}
+            className={`${hoveredProfile && editMode ? "cursor-pointer" : "cursor-default"} relative w-fit`}
+          >
+            <Image
+              width={80}
+              height={80}
+              src={tempPreview || data?.image || "/images/user/owner.png"}
+              alt="User"
+              className={`${hoveredProfile && editMode ? "opacity-50" : ""} h-[80px] w-[80px] rounded-full border-2 border-black/30 object-cover dark:border-white/10`}
+            />
+            {hoveredProfile && editMode ? (
+              <button
+                onClick={(e) => handleEditClick(e)}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-sm font-semibold text-gray-800 dark:text-white/90"
+              >
+                {!data?.image ? "Upload Foto" : "Ganti Foto"}
+              </button>
+            ) : null}
+            <input
+              type="file"
+              accept="image/*"
+              ref={(el) => {
+                fileInputRefs.current = el;
+              }}
+              onChange={(e) => handleFileChange(e)}
+              className="hidden"
+            />
+          </div>
         )}
         <button
           type="button"
+          onClick={() => setEditMode(!editMode)}
           className="text-sm font-semibold text-gray-800 dark:text-white/90"
         >
           Edit Profile
@@ -112,8 +282,10 @@ export default function Profile() {
               </Label>
               <Input
                 className="min-w-[300px]"
+                defaultValue={data?.username || ""}
                 {...register("name")}
                 error={errors.name ? true : false}
+                disabled={!editMode}
                 placeholder="Masukkan nama baru"
               />
             </div>
@@ -130,8 +302,10 @@ export default function Profile() {
               </Label>
               <Input
                 className="min-w-[600px]"
+                defaultValue={data?.email || ""}
                 {...register("email")}
                 error={errors.email ? true : false}
+                disabled={!editMode}
                 placeholder="Masukkan email baru"
               />
             </div>
@@ -148,8 +322,10 @@ export default function Profile() {
               </Label>
               <Input
                 className="min-w-[600px]"
+                defaultValue={data?.address || ""}
                 {...register("address")}
                 error={errors.address ? true : false}
+                disabled={!editMode}
                 placeholder="Masukkan alamat baru"
               />
             </div>
@@ -176,7 +352,9 @@ export default function Profile() {
                   </div>
                 }
                 {...register("phoneNumber")}
+                defaultValue={data?.phoneNumber.slice(3).trim() || ""}
                 error={errors.phoneNumber ? true : false}
+                disabled={!editMode}
                 placeholder="No. HP"
                 className="min-w-[600px] pl-[48px]"
               />
@@ -209,6 +387,7 @@ export default function Profile() {
                   </span>
                 }
                 {...register("password")}
+                disabled={!editMode}
                 placeholder="Masukkan password baru"
                 type={showPassword ? "text" : "password"}
               />
@@ -221,20 +400,30 @@ export default function Profile() {
           </div>
 
           {/* Submit Button */}
-          <div className="flex items-center gap-x-6">
-            <Button
-              size="sm"
-              variant="outline"
-              transparent
-              className="ml-[95px] min-w-[130px] rounded-none"
-              onClick={() => router.back()}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" size="sm" className="min-w-[130px] rounded-none">
-              Save
-            </Button>
-          </div>
+          {editMode && (
+            <div className="flex items-center gap-x-6">
+              <Button
+                size="sm"
+                variant="outline"
+                transparent
+                className="ml-[95px] min-w-[130px] rounded-none"
+                onClick={() => {
+                  setSelectedFile(null);
+                  setTempPreview(null);
+                  setEditMode(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                className="min-w-[130px] rounded-none"
+              >
+                Save
+              </Button>
+            </div>
+          )}
         </form>
       </aside>
     </section>

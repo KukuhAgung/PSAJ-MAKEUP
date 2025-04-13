@@ -67,6 +67,7 @@ export async function PUT(
         username: body.username,
         email: body.email,
         phoneNumber: body.phoneNumber,
+        reviewQuota: body.reviewQuota,
         role: body.role,
       },
     });

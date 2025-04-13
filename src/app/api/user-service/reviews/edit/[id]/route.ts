@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 
 import { z } from "zod";
 
+// Daftar kategori yang valid
 const categoryOptions = [
   "wedding",
   "graduation",
@@ -18,6 +19,7 @@ const categoryOptions = [
   "prewedding",
 ] as const;
 
+// Schema validasi untuk input testimoni
 const testimoniSchema = z.object({
   category: z.enum(categoryOptions, {
     required_error: "Category must be selected",
@@ -29,11 +31,15 @@ const testimoniSchema = z.object({
     .max(5, "Rating maksimal 5"),
 });
 
-export async function POST(req: NextRequest) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } },
+) {
   const body = await req.json();
   const token = req.cookies.get("token");
   const nextAuthToken = req.cookies.get("next-auth.session-token");
 
+  // Pastikan pengguna memiliki token
   if (!token && !nextAuthToken) {
     return new Response(
       JSON.stringify({ code: 401, message: "Unauthorized", data: null }),
@@ -46,6 +52,7 @@ export async function POST(req: NextRequest) {
   let decoded: any = null;
 
   try {
+    // Verifikasi token
     if (token) {
       decoded = await getDecodedToken(token.value, "token");
     } else if (nextAuthToken) {
@@ -70,6 +77,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Validasi input
   const validationResult = testimoniSchema.safeParse(body);
 
   if (!validationResult.success) {
@@ -87,11 +95,49 @@ export async function POST(req: NextRequest) {
   }
 
   const { rating, description, category } = validationResult.data;
+  const { id } = params;
 
   try {
-    const review = await prisma.review.create({
+    // Cek apakah review dengan ID tertentu ada
+    const existingReview = await prisma.review.findUnique({
+      where: {
+        id: Number(id), // Konversi ID ke tipe number
+      },
+    });
+
+    if (!existingReview) {
+      return new Response(
+        JSON.stringify({
+          code: 404,
+          message: "Review not found",
+          data: null,
+        }),
+        {
+          status: 404,
+        },
+      );
+    }
+
+    // Pastikan hanya pemilik review atau admin yang dapat mengedit
+    if (existingReview.userId !== (decoded.payload.id || decoded.id)) {
+      return new Response(
+        JSON.stringify({
+          code: 403,
+          message: "Forbidden: You are not authorized to edit this review",
+          data: null,
+        }),
+        {
+          status: 403,
+        },
+      );
+    }
+
+    // Update review
+    const updatedReview = await prisma.review.update({
+      where: {
+        id: Number(id),
+      },
       data: {
-        userId: decoded.payload.id || decoded.id,
         category: category,
         stars: rating,
         comment: description,
@@ -100,16 +146,16 @@ export async function POST(req: NextRequest) {
 
     return new Response(
       JSON.stringify({
-        code: 201,
-        message: "Review created successfully",
-        data: review,
+        code: 200,
+        message: "Review updated successfully",
+        data: updatedReview,
       }),
       {
-        status: 201,
+        status: 200,
       },
     );
   } catch (error) {
-    console.error("Error creating review:", error);
+    console.error("Error updating review:", error);
     return new Response(
       JSON.stringify({
         code: 500,
