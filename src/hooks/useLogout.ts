@@ -7,12 +7,16 @@ const useLogout = () => {
   const { trigger } = useApi("/api/user-service/logout");
   const logout = useCallback(() => {
     localStorage.removeItem("token");
-    trigger({ method: "POST" }, {
-      onSuccess: () => {
-        router.replace("/");
-        window.location.reload();
-      }
-    })
+    localStorage.removeItem("user");
+    trigger(
+      { method: "POST" },
+      {
+        onSuccess: () => {
+          router.replace("/");
+          window.location.reload();
+        },
+      },
+    );
   }, [trigger, router]);
 
   return logout;

@@ -81,7 +81,7 @@ export const HeroSection = () => {
                 className={`relative rounded-full border-2 border-white ${index !== 0 ? "-ml-4" : ""}`}
               >
                 {item.user.image !== null ? (
-                  <Avatar src={item.user.image} size="xxlarge" />
+                  <Avatar alt={`profile-${item.user.username}`}  src={item.user.image} size="xxlarge" />
                 ) : (
                   <div className="h-[50px] w-[50px] rounded-full bg-[#D9D9D9]"></div>
                 )}

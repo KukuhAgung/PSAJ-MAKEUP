@@ -48,6 +48,8 @@ export async function GET(req: NextRequest) {
         email: true,
         role: true,
         phoneNumber: true,
+        address: true,
+        reviewQuota: true
       },
     });
 

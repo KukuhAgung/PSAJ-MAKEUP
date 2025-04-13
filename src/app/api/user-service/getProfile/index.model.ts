@@ -5,4 +5,6 @@ export interface IGetProfileResponseData {
     email: string;
     role: string;
     phoneNumber: string;
+    address: string;
+    reviewQuota: number;
 }
