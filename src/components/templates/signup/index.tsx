@@ -18,6 +18,7 @@ import { FiPhone } from "react-icons/fi";
 import { MdOutlineMail } from "react-icons/md";
 import { useBackdrop } from "@/context/BackdropContext";
 import { useApi } from "@/hooks/useFetchApi";
+import { signIn } from "next-auth/react";
 
 const loginSchema = z.object({
   username: z.string().min(3, "Username minimal 3 karakter"),
@@ -225,7 +226,10 @@ export const SignUp = () => {
               </div>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-                <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+                <button
+                  onClick={() => signIn("facebook", { callbackUrl: "/" })}
+                  className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+                >
                   <svg
                     width="24"
                     height="20"
@@ -251,7 +255,10 @@ export const SignUp = () => {
                   </svg>
                   Facebook
                 </button>
-                <button className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+                <button
+                  onClick={() => signIn("google", { callbackUrl: "/" })}
+                  className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-7 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10"
+                >
                   <svg
                     width="20"
                     height="20"
