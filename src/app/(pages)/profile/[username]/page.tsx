@@ -185,10 +185,10 @@ export default function Profile() {
 
   useEffect(() => {
     if (data) {
-      setValue("name", data.username);
-      setValue("email", data.email);
-      setValue("phoneNumber", data.phoneNumber.slice(3).trim());
-      setValue("address", data.address);
+      if (data.username) setValue("name", data.username || "");
+      if (data.email) setValue("email", data.email || "");
+      if (data.phoneNumber) setValue("phoneNumber", data.phoneNumber.slice(3).trim() || "");
+      if (data.address) setValue("address", data.address || "");
     }
   }, [data]);
 
@@ -352,7 +352,9 @@ export default function Profile() {
                   </div>
                 }
                 {...register("phoneNumber")}
-                defaultValue={data?.phoneNumber.slice(3).trim() || ""}
+                defaultValue={
+                  data?.phoneNumber ? data.phoneNumber.slice(3).trim() : ""
+                }
                 error={errors.phoneNumber ? true : false}
                 disabled={!editMode}
                 placeholder="No. HP"

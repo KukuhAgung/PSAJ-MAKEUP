@@ -74,8 +74,32 @@ export const HeroSection = () => {
           berkualitas tinggi.
         </p>
         <div className="flex items-center gap-x-4">
-          <Button size="md">Pesan Sekarang</Button>
-          <Button size="md" variant="outline" transparent>
+          <Button
+            size="md"
+            onClick={() => {
+              const message = encodeURIComponent(
+                "selamat malam ka, saya mau sewa jasa makeup",
+              );
+              window.open(
+                `https://wa.me/6287719606111?text=${message}`,
+                "_blank",
+              );
+            }}
+          >
+            Pesan Sekarang
+          </Button>
+
+          <Button
+            size="md"
+            variant="outline"
+            transparent
+            onClick={() => {
+              const element = document.getElementById("descriptionSection");
+              if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+          >
             Lihat Selengkapnya
           </Button>
         </div>
