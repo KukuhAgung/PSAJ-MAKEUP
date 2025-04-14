@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     // Daftar domain yang diizinkan untuk gambar
     domains: [

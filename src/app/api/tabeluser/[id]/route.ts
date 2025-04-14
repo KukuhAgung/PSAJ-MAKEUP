@@ -1,36 +1,52 @@
 import { PrismaClient } from "@prisma/client";
 import { NextRequest } from "next/server";
+import { z } from "zod";
 
 const prisma = new PrismaClient();
 
+// Schema validasi menggunakan Zod
+const updateUserSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email format"),
+  phoneNumber: z.string().optional(),
+  reviewQuota: z.number().optional(),
+  role: z.enum(["USER", "ADMIN"]).optional(),
+});
+
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
+    // Validasi ID pengguna
     const userId = parseInt(params.id);
     if (isNaN(userId)) {
       return new Response(
         JSON.stringify({ code: 400, message: "Invalid user ID", data: null }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
+    // Parse body permintaan
     const body = await request.json();
 
-    // Validate required fields
-    if (!body.username || !body.email) {
+    // Validasi input menggunakan Zod
+    const validationResult = updateUserSchema.safeParse(body);
+    if (!validationResult.success) {
       return new Response(
         JSON.stringify({
           code: 400,
-          message: "Username and email are required",
-          data: null,
+          message: "Validation failed",
+          data: validationResult.error.flatten(), // Detail error yang lebih informatif
         }),
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Check if user exists
+    const { username, email, phoneNumber, reviewQuota, role } =
+      validationResult.data;
+
+    // Periksa apakah pengguna ada
     const existingUser = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -38,14 +54,14 @@ export async function PUT(
     if (!existingUser) {
       return new Response(
         JSON.stringify({ code: 404, message: "User not found", data: null }),
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // Check if the email is already used by another user
-    if (body.email !== existingUser.email) {
-      const emailExists = await prisma.user.findUnique({
-        where: { email: body.email },
+    // Periksa apakah email sudah digunakan oleh pengguna lain
+    if (email !== existingUser.email) {
+      const emailExists = await prisma.user.findFirst({
+        where: { email, NOT: { id: userId } }, // Pastikan email tidak dimiliki oleh pengguna lain
       });
 
       if (emailExists) {
@@ -55,23 +71,25 @@ export async function PUT(
             message: "Email is already in use",
             data: null,
           }),
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
 
-    // Update the user
+    // Update data pengguna
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        username: body.username,
-        email: body.email,
-        phoneNumber: body.phoneNumber,
-        reviewQuota: body.reviewQuota,
-        role: body.role,
+        username,
+        email,
+        phoneNumber,
+        reviewQuota,
+        role,
+        updatedAt: new Date(), // Tambahkan timestamp pembaruan
       },
     });
 
+    // Kembalikan respons sukses
     return new Response(
       JSON.stringify({
         code: 200,
@@ -80,18 +98,25 @@ export async function PUT(
           id: updatedUser.id,
           username: updatedUser.username,
           email: updatedUser.email,
-          password: "********", // Always mask the password
-          phone: updatedUser.phoneNumber,
+          phone: updatedUser.phoneNumber || null, // Handle jika phoneNumber kosong
           role: updatedUser.role === "ADMIN" ? "Admin" : "User",
+          updatedAt: updatedUser.updatedAt.toISOString(), // Format tanggal ISO
         },
       }),
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
+    // Tangani error internal server
     console.error("Error updating user:", error);
+
+    // Jangan tampilkan detail teknis kepada klien
     return new Response(
-      JSON.stringify({ code: 500, message: "Internal Server Error", data: null }),
-      { status: 500 }
+      JSON.stringify({
+        code: 500,
+        message: "Internal Server Error",
+        data: null,
+      }),
+      { status: 500 },
     );
   }
 }
