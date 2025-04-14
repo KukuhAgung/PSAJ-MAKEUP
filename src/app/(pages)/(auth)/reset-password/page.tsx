@@ -12,6 +12,7 @@ const emailSchema = z.object({
 
 type FormValues = z.infer<typeof emailSchema>;
 
+
 export default function ResetPassword() {
     const { trigger: triggerEmail } = useApi("/api/auth/reset");
   const {
