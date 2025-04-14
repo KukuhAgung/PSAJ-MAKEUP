@@ -1,3 +1,4 @@
+"use client"
 import Input from "@/components/organism/form/input/InputField";
 import { Button } from "@/components/ui/button";
 import { useApi } from "@/hooks/useFetchApi";
