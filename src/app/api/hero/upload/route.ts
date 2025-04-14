@@ -1,13 +1,12 @@
-import type { NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import sharp from "sharp";
-import { supabase } from "@/lib/supabaseClient"; // Import Supabase client
+import { supabase } from "@/lib/supabaseClient";
 
 export async function POST(request: NextRequest) {
   try {
+    // Parse form data
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const productId = formData.get("productId") as string;
-    const cropData = formData.get("cropData") as string;
 
     if (!file) {
       return new Response(
@@ -16,103 +15,57 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!productId) {
-      return new Response(
-        JSON.stringify({
-          code: 400,
-          message: "Product ID is required",
-          data: null,
-        }),
-        { status: 400 },
-      );
-    }
-
+    // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    let processedImageBuffer;
+    // Process the image using sharp
+    const processedImageBuffer = await sharp(buffer)
+      .resize({
+        width: 490,
+        height: 490,
+        fit: "cover",
+        position: "center",
+      })
+      .toFormat("png") // Ensure the output is in PNG format
+      .toBuffer();
 
-    // If crop data is provided, use it to crop the image
-    if (cropData) {
-      const { x, y, width, height, scale } = JSON.parse(cropData);
+    // Generate a unique filename
+    const filename = `hero-image-${Date.now()}.png`;
 
-      // Calculate the actual crop dimensions based on the scale
-      const actualX = Math.round(x / scale);
-      const actualY = Math.round(y / scale);
-      const actualWidth = Math.round(width / scale);
-      const actualHeight = Math.round(height / scale);
-
-      // Process the image with the crop settings
-      processedImageBuffer = await sharp(buffer)
-        .extract({
-          left: actualX,
-          top: actualY,
-          width: actualWidth,
-          height: actualHeight,
-        })
-        .resize({
-          width: 500,
-          height: 500,
-          fit: "fill",
-        })
-        .toBuffer();
-    } else {
-      // If no crop data, just resize while maintaining aspect ratio
-      processedImageBuffer = await sharp(buffer)
-        .resize({
-          width: 500,
-          height: 500,
-          fit: "contain",
-          background: { r: 255, g: 255, b: 255, alpha: 0 },
-        })
-        .toBuffer();
-    }
-
-    // Create a unique filename
-    const filename = `product-${productId}-${Date.now()}.png`;
-
-    // Upload file to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from("product-images") // Ganti "product-images" dengan nama bucket Anda
+    // Upload the processed image to Supabase Storage
+    const { error } = await supabase.storage
+      .from("content") // Bucket name
       .upload(filename, processedImageBuffer, {
-        contentType: "image/png", // Sesuaikan dengan tipe file
+        contentType: "image/png", // Set MIME type
+        upsert: false, // Prevent overwriting existing files
       });
 
-    if (uploadError) {
-      console.error("Error uploading file to Supabase:", uploadError);
+    if (error) {
+      console.error("Error uploading to Supabase:", error);
       return new Response(
         JSON.stringify({
           code: 500,
-          message: "Failed to upload file",
+          message: "Failed to upload to Supabase",
           data: null,
         }),
         { status: 500 },
       );
     }
 
-    // Generate public URL for the uploaded file
-    const { data: publicUrlData } = supabase.storage
-      .from("hero-images") // Replace "hero-images" with your bucket name
-      .getPublicUrl(`hero-image-${Date.now()}.png`);
+    // Get the public URL of the uploaded image
+    const { data: urlData } = supabase.storage
+      .from("content")
+      .getPublicUrl(filename);
 
-    if (!publicUrlData?.publicUrl) {
-      console.error("Failed to generate public URL");
-      return new Response(
-        JSON.stringify({
-          code: 500,
-          message: "Failed to generate public URL",
-          data: null,
-        }),
-        { status: 500 },
-      );
-    }
+    const imageUrl = urlData.publicUrl;
 
-    // Return the public URL of the uploaded file
+    // Return success response with the image URL
     return new Response(
       JSON.stringify({
         code: 200,
         message: "File uploaded successfully",
-        data: { url: publicUrlData.publicUrl },
+        data: { url: imageUrl },
       }),
       { status: 200 },
     );
