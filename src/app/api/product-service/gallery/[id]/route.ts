@@ -1,26 +1,46 @@
-import { PrismaClient } from "@prisma/client"
-import type { NextRequest } from "next/server"
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+// Update a specific gallery item
+export async function PUT(request: Request) {
   try {
-    const galleryItemId = params.id
-    const body = await request.json()
-    const { image } = body
+    const url = new URL(request.url);
+    const id = url.pathname.split("/").pop(); // Ambil ID dari URL
+
+    if (!id || isNaN(Number(id))) {
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message: "Invalid ID format",
+          data: null,
+        }),
+        { status: 400 },
+      );
+    }
+
+    const body = await request.json();
+    const { image } = body;
 
     if (!image) {
-      return new Response(JSON.stringify({ code: 400, message: "Image URL is required", data: null }), { status: 400 })
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message: "Image URL is required",
+          data: null,
+        }),
+        { status: 400 },
+      );
     }
 
     // Update the gallery item
     const updatedGalleryItem = await prisma.galleryProduct.update({
-      where: { id: galleryItemId },
+      where: { id: id }, // Konversi ID ke number
       data: {
         image,
         updatedAt: new Date(),
       },
-    })
+    });
 
     return new Response(
       JSON.stringify({
@@ -29,9 +49,16 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         data: updatedGalleryItem,
       }),
       { status: 200 },
-    )
+    );
   } catch (error) {
-    console.error("Error updating gallery item:", error)
-    return new Response(JSON.stringify({ code: 500, message: "Internal Server Error", data: null }), { status: 500 })
+    console.error("Error updating gallery item:", error);
+    return new Response(
+      JSON.stringify({
+        code: 500,
+        message: "Internal Server Error",
+        data: null,
+      }),
+      { status: 500 },
+    );
   }
 }

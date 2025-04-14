@@ -1,46 +1,43 @@
-import { PrismaClient } from "@prisma/client"
-import type { NextRequest } from "next/server"
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+// Update a specific product
+export async function PUT(request: Request) {
   try {
-    const productId = params.id
+    const url = new URL(request.url);
+    const productId = url.pathname.split("/").pop(); // Ambil ID dari URL
 
-    const product = await prisma.itemProduct.findUnique({
-      where: { id: productId },
-      include: {
-        galleryItems: true,
-      },
-    })
-
-    if (!product) {
-      return new Response(JSON.stringify({ code: 404, message: "Product not found", data: null }), { status: 404 })
+    if (!productId || isNaN(Number(productId))) {
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message: "Invalid Product ID format",
+          data: null,
+        }),
+        { status: 400 },
+      );
     }
 
-    return new Response(
-      JSON.stringify({
-        code: 200,
-        message: "Product retrieved successfully",
-        data: product,
-      }),
-      { status: 200 },
-    )
-  } catch (error) {
-    console.error("Error retrieving product:", error)
-    return new Response(JSON.stringify({ code: 500, message: "Internal Server Error", data: null }), { status: 500 })
-  }
-}
+    const body = await request.json();
+    const { subtitle, description, banner } = body;
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const productId = params.id
-    const body = await request.json()
-    const { subtitle, description, banner } = body
+    // Validasi input
+    if (!subtitle && !description && !banner) {
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message:
+            "At least one field (subtitle, description, or banner) is required",
+          data: null,
+        }),
+        { status: 400 },
+      );
+    }
 
     // Update the product
     const updatedProduct = await prisma.itemProduct.update({
-      where: { id: productId },
+      where: { id: productId }, // Konversi ID ke number
       data: {
         subtitle: subtitle || undefined,
         description: description || undefined,
@@ -48,9 +45,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         updatedAt: new Date(),
       },
       include: {
-        galleryItems: true,
+        galleryItems: true, // Include related gallery items
       },
-    })
+    });
 
     return new Response(
       JSON.stringify({
@@ -59,9 +56,16 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         data: updatedProduct,
       }),
       { status: 200 },
-    )
+    );
   } catch (error) {
-    console.error("Error updating product:", error)
-    return new Response(JSON.stringify({ code: 500, message: "Internal Server Error", data: null }), { status: 500 })
+    console.error("Error updating product:", error);
+    return new Response(
+      JSON.stringify({
+        code: 500,
+        message: "Internal Server Error",
+        data: null,
+      }),
+      { status: 500 },
+    );
   }
 }

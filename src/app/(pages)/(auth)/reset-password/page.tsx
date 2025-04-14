@@ -1,3 +1,4 @@
+"use client"
 import Input from "@/components/organism/form/input/InputField";
 import { Button } from "@/components/ui/button";
 import { useApi } from "@/hooks/useFetchApi";
@@ -11,6 +12,7 @@ const emailSchema = z.object({
 });
 
 type FormValues = z.infer<typeof emailSchema>;
+
 
 export default function ResetPassword() {
     const { trigger: triggerEmail } = useApi("/api/auth/reset");
