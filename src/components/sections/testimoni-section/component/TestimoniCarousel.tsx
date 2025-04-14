@@ -10,13 +10,13 @@ import { CarouselAction } from "./CarouselAction";
 import React, { useState } from "react";
 import { ITestimoniCarouselProps } from "../index.model";
 
-export const TestimoniCarousel: React.FC<ITestimoniCarouselProps> = ({ items}) => {
+export const TestimoniCarousel: React.FC<ITestimoniCarouselProps> = ({ items, mobile=false }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
     <Swiper
       spaceBetween={15}
-      slidesPerView={3}
+      slidesPerView={mobile ? 1 : 3}
       scrollbar={{ draggable: true }}
       modules={[Pagination, Navigation, Scrollbar]}
       onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}

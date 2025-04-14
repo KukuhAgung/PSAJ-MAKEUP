@@ -1,7 +1,10 @@
+"use client"
 import { Products } from "./index.data";
 import { ProductCarousel } from "./component/ProductCarousel";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 export const ProdukSection = () => {
+  const mobile = useMediaQuery("(max-width: 768px)");
   return (
     <section
       id="product"
@@ -9,7 +12,7 @@ export const ProdukSection = () => {
     >
       <div className="absolute -left-[394px] top-[184px] -z-10 h-[350px] w-[435px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[88px]"></div>
       <div className="flex flex-col gap-y-10">
-        <h1 className="text-center font-jakarta text-[56px] font-semibold">
+        <h1 className="text-center font-jakarta text-3xl md:text-[56px] font-semibold">
           Daftar Produk
         </h1>
         <h6 className="text-center font-jakarta text-base font-medium">
@@ -18,9 +21,9 @@ export const ProdukSection = () => {
         </h6>
       </div>
       <article className="flex flex-col gap-y-4">
-        <ProductCarousel items={Products} />
+        <ProductCarousel mobile={mobile} items={Products} />
         <p className="text-left font-jakarta text-base font-medium text-primary-500">
-          *geser ke kiri untuk menampilkan produk yang lain
+          *geser ke kanan untuk menampilkan produk yang lain
         </p>
       </article>
     </section>

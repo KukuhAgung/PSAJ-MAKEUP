@@ -23,6 +23,7 @@ export interface IReviewsApiResponse {
 }
 
 export interface ITestimoniCarouselProps {
+  mobile?: boolean
   items: IReviews[];
 }
 

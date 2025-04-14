@@ -14,6 +14,10 @@ import { useApi } from "@/hooks/useFetchApi";
 import { IResponseAPI } from "@/lib/index.model";
 import { IReviewsApiResponse } from "@/components/sections/testimoni-section/index.model";
 import { User } from "@prisma/client";
+import useMediaQuery from "@/hooks/useMediaQuery";
+import { Modal } from "@/components/molecules/modal";
+import Alert from "@/components/molecules/alert/Alert";
+
 
 interface IAdminsApiResponse {
   admin: User[];
@@ -21,6 +25,7 @@ interface IAdminsApiResponse {
 }
 
 export const EcommerceMetrics = () => {
+  const mobile = useMediaQuery("(max-width: 768px)");
   const { trigger: triggerReview } = useApi("/api/user-service/reviews");
   const { trigger: triggerAdmin } = useApi("/api/user-service/reviews");
   const [reviews, setReviews] = useState<IResponseAPI<IReviewsApiResponse>>();
@@ -37,10 +42,7 @@ export const EcommerceMetrics = () => {
       { onSuccess: (data) => setReviews(data) },
     );
 
-    triggerAdmin(
-      { method: "GET"},
-      { onSuccess: (data) => setAdmins(data) },
-    );
+    triggerAdmin({ method: "GET" }, { onSuccess: (data) => setAdmins(data) });
 
     const fetchSummaryData = async () => {
       try {
@@ -172,6 +174,18 @@ export const EcommerceMetrics = () => {
           </div> */}
         </div>
       </div>
+
+      <Modal
+        showCloseButton={false}
+        isOpen={mobile}
+        onClose={() => {}}
+      >
+        <Alert
+          variant="error"
+          title="Halaman Admin Tidak Tersedia"
+          message="Demi kenyamanan, silahkan gunakan desktop untuk mengakses halaman admin."
+        />
+      </Modal>
     </div>
   );
 };

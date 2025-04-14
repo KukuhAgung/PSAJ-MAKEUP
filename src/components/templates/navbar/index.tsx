@@ -1,6 +1,8 @@
 "use client";
 import Image from "next/image";
 import Button from "@/components/molecules/button/Button";
+import { RxHamburgerMenu } from "react-icons/rx";
+import { LiaTimesSolid } from "react-icons/lia";
 import { motion, Variants } from "framer-motion";
 import { useNavbar } from "@/context/NavbarContext";
 import NavItem from "./component/NavItem";
@@ -10,11 +12,15 @@ import { useEffect, useState } from "react";
 import { IGetProfileResponseData } from "@/app/api/user-service/getProfile/index.model";
 import { UserDropdown } from "../header/UserDropdown";
 import { menus } from "./index.data";
+import useMediaQuery from "@/hooks/useMediaQuery";
+import { variantsNav } from "./index.variant";
 
 export const Navbar = () => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const { trigger } = useApi("/api/user-service/getProfile");
   const { setBackdrop, setIsRegister } = useBackdrop();
   const { activeMenu, setActiveMenu, yValue, setHovered } = useNavbar();
+  const [mobileNavbar, setMobileNavbar] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
   const [data, setData] = useState<IGetProfileResponseData>();
@@ -55,63 +61,158 @@ export const Navbar = () => {
     <motion.header
       variants={variants}
       animate={yValue > 0 ? "scroll" : "normal"}
-      className="fixed top-0 z-99 w-full px-10"
+      className="fixed top-0 z-99 w-full md:px-10"
     >
       <motion.nav className="flex w-full items-center justify-between px-6 py-2 font-jakarta text-sm font-medium">
         <Image
           src="/images/logo/logo.png"
           alt="logo"
-          width={230}
-          height={100}
+          width={isMobile ? 200 : 230}
+          height={isMobile ? 200 : 100}
         />
-        <ul className="flex items-center justify-between gap-x-2">
-          {menus.map((item, index) => (
-            <NavItem
-              key={index}
-              label={item.label}
-              to={item.to}
-              active={activeMenu}
-              setHovered={setHovered}
-              setActive={setActiveMenu}
-            />
-          ))}
-          <div className="mx-3 h-4 rounded-full border-l-2 border-primary-500"></div>
-          {isLogin && data ? (
-            <UserDropdown
-              onUserPage
-              isOpen={open}
-              setIsOpen={setOpen}
-              image={data.image}
-              username={data.username}
-              id={data.id}
-              email={data.email}
-              editProfile
-              inputReview
-            />
-          ) : (
-            <>
-              <Button
-                onClick={() => {
-                  setIsRegister(true);
-                  setBackdrop(true);
-                }}
-                size="sm"
-                variant="outline"
-              >
-                Register
-              </Button>
-              <Button
-                onClick={() => {
-                  setIsRegister(false);
-                  setBackdrop(true);
-                }}
-                size="sm"
-              >
-                Log In
-              </Button>
-            </>
-          )}
-        </ul>
+        {!isMobile && (
+          <ul className="flex items-center justify-between gap-x-2">
+            {menus.map((item, index) => (
+              <NavItem
+                key={index}
+                label={item.label}
+                to={item.to}
+                mobile={false}
+                active={activeMenu}
+                setHovered={setHovered}
+                setActive={setActiveMenu}
+              />
+            ))}
+            <div className="mx-3 h-4 rounded-full border-l-2 border-primary-500"></div>
+            {isLogin && data ? (
+              <UserDropdown
+                onUserPage
+                isOpen={open}
+                setIsOpen={setOpen}
+                image={data.image}
+                username={data.username}
+                id={data.id}
+                email={data.email}
+                editProfile
+                inputReview
+              />
+            ) : (
+              <>
+                <Button
+                  onClick={() => {
+                    setIsRegister(true);
+                    setBackdrop(true);
+                  }}
+                  size="sm"
+                  variant="outline"
+                >
+                  Register
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsRegister(false);
+                    setBackdrop(true);
+                  }}
+                  size="sm"
+                >
+                  Log In
+                </Button>
+              </>
+            )}
+          </ul>
+        )}
+
+        {isMobile && (
+          <motion.button
+            variants={variantsNav}
+            initial="initialButton"
+            animate="visibleButton"
+            transition={{
+              duration: 0.5,
+              delay: 0.5,
+              ease: "easeInOut",
+              type: "spring",
+            }}
+            onClick={() => setMobileNavbar(!mobileNavbar)}
+          >
+            <RxHamburgerMenu size={25} />
+          </motion.button>
+        )}
+
+        {mobileNavbar && (
+          <motion.div
+            variants={variantsNav}
+            initial="initial"
+            animate={mobileNavbar ? "visible" : "hidden"}
+            className="absolute left-0 top-0 z-50 flex h-screen w-full flex-col items-center justify-center gap-y-2 bg-white px-6 py-2"
+          >
+            <motion.button
+              className="fixed left-10 top-14"
+              variants={variantsNav}
+              initial="initialButton"
+              animate="visibleButton"
+              transition={{
+                duration: 0.5,
+                delay: 0.5,
+                ease: "easeInOut",
+                type: "spring",
+              }}
+              onClick={() => setMobileNavbar(!mobileNavbar)}
+            >
+              <LiaTimesSolid size={25} />
+            </motion.button>
+            {isLogin && data ? (
+              <div className="fixed right-10 top-10">
+                <UserDropdown
+                  onUserPage
+                  isOpen={open}
+                  setIsOpen={setOpen}
+                  image={data.image}
+                  username={data.username}
+                  id={data.id}
+                  email={data.email}
+                  editProfile
+                  inputReview
+                />
+              </div>
+            ) : (
+              <div className="fixed right-0 top-10">
+                <Button
+                  onClick={() => {
+                    setIsRegister(true);
+                    setBackdrop(true);
+                  }}
+                  size="sm"
+                  variant="outline"
+                >
+                  Register
+                </Button>
+                <Button
+                  onClick={() => {
+                    setIsRegister(false);
+                    setBackdrop(true);
+                  }}
+                  size="sm"
+                >
+                  Log In
+                </Button>
+              </div>
+            )}
+            <ul>
+              {menus.map((item, index) => (
+                <NavItem
+                  key={index}
+                  label={item.label}
+                  to={item.to}
+                  mobile
+                  active={activeMenu}
+                  setHovered={setHovered}
+                  setActive={setActiveMenu}
+                />
+              ))}
+            </ul>
+          </motion.div>
+        )}
       </motion.nav>
     </motion.header>
   );
