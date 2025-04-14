@@ -2,31 +2,32 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
-  const { id } = params;
-
-  // Validasi ID
-  if (!id || isNaN(Number(id))) {
-    return new Response(
-      JSON.stringify({
-        code: 400,
-        message: "Invalid ID",
-        data: null,
-      }),
-      {
-        status: 400,
-      },
-    );
-  }
-
+export async function GET(request: Request) {
   try {
+    // Ambil ID dari URL
+    const url = new URL(request.url);
+    const id = url.pathname.split("/").pop(); // Ambil bagian terakhir dari path sebagai ID
+
+    // Validasi ID
+    if (!id || isNaN(Number(id))) {
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message: "Invalid ID",
+          data: null,
+        }),
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const reviewId = Number(id);
+
     // Query untuk mendapatkan review berdasarkan ID
     const review = await prisma.review.findUnique({
       where: {
-        id: Number(id), // Konversi ID ke tipe number
+        id: reviewId, // Konversi ID ke tipe number
       },
       include: {
         user: true, // Include data user jika ada relasi dengan tabel User
