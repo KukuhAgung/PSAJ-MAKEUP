@@ -44,21 +44,24 @@ export const PortfolioSection = () => {
   return (
     <section
       id="gallery"
-      className="relative flex min-h-screen flex-col items-center justify-center gap-y-14 overflow-hidden rounded-xl border border-white bg-primary-500 bg-opacity-10 px-10 py-20"
+      className="relative flex min-h-screen flex-col items-center justify-center gap-y-10 md:gap-y-14 overflow-hidden rounded-xl border border-white bg-primary-500 bg-opacity-10 px-10 py-20"
     >
       <div className="absolute left-56 top-32 -z-10 h-[350px] w-[435px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[136px]"></div>
       <div className="flex flex-col gap-y-10">
-        <h1 className="text-center font-jakarta text-[56px] font-semibold">Portfolio</h1>
-        <h6 className="text-center font-jakarta text-base font-medium">
-          Periksa portofolio dan testimoni dari ratusan kali pengalaman selama lebih dari 5 tahun berkarir.
+        <h1 className="text-center font-jakarta text-3xl font-semibold md:text-[56px]">
+          Portfolio
+        </h1>
+        <h6 className="text-center font-jakarta text-sm font-medium md:text-base">
+          Periksa portofolio dan testimoni dari ratusan kali pengalaman selama
+          lebih dari 5 tahun berkarir.
         </h6>
       </div>
-      <article className="flex items-center gap-x-8">
+      <article className="flex items-center gap-x-2 md:gap-x-8">
         {portfolioItems.map((item) => (
           <PortfolioCard key={item.id} data={item} />
         ))}
       </article>
       <Button onClick={() => handleRouter()}>Lihat Selengkapnya</Button>
     </section>
-  )
+  );
 }

@@ -9,6 +9,7 @@ interface NavItemProps {
   active: string;
   setHovered: (menu: pages | null) => void;
   setActive: (menu: pages) => void;
+  mobile: boolean
 }
 
 const NavItem = ({
@@ -17,12 +18,13 @@ const NavItem = ({
   active,
   setActive,
   setHovered,
+  mobile
 }: NavItemProps) => {
   return (
     <motion.li
       onHoverStart={() => setHovered(label)}
       onHoverEnd={() => setHovered(null)}
-      className="relative flex cursor-pointer items-center justify-center gap-x-2"
+      className={`relative ${mobile && "gap-y-4"} flex cursor-pointer items-center justify-center`}
     >
       <Link
         href={to}
@@ -30,11 +32,11 @@ const NavItem = ({
           localStorage.setItem("storePath", label);
           setActive(label);
         }}
-        className="flex h-[38px] w-[84px] items-center justify-center text-base text-primary-500"
+        className="flex h-[38px] w-[84px] items-center justify-center text-base text-primary-500 gap-x-2"
       >
         {label}
       </Link>
-      {label === active && (
+      {!mobile && label === active ? (
         <motion.div
           layoutId="nav-item"
           initial={false}
@@ -46,7 +48,7 @@ const NavItem = ({
           }}
           className="h-full w-full rounded-3xl border-2 border-primary-500"
         ></motion.div>
-      )}
+      ) : null}
     </motion.li>
   );
 };

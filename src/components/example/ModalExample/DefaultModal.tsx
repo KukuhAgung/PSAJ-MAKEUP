@@ -2,8 +2,8 @@
 import React from "react";
 import ComponentCard from "../../organism/common/ComponentCard";
 
-import { Modal } from "../../ui/modal";
-import Button from "../../ui/molecules/button/Button";
+import { Modal } from "@/components/molecules/modal";
+import Button from "@/components/molecules/button/Button";
 import { useModal } from "@/hooks/useModal";
 
 export default function DefaultModal() {

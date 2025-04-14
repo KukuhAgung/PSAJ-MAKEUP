@@ -9,6 +9,8 @@ import Link from "next/link";
 import { IResponseAPI } from "@/lib/index.model";
 import { IReviewsApiResponse } from "../testimoni-section/index.model";
 import { useApi } from "@/hooks/useFetchApi";
+import Alert from "@/components/molecules/alert/Alert";
+import { Modal } from "@/components/molecules/modal";
 
 const rozha = Rozha_One({
   weight: "400",
@@ -17,6 +19,7 @@ const rozha = Rozha_One({
 
 export const HeroSection = () => {
   const { trigger } = useApi("/api/user-service/reviews");
+  const [showModalError, setShowModalError] = useState(false);
   const [reviews, setReviews] = useState<IResponseAPI<IReviewsApiResponse>>();
   const [isLoading, setIsLoading] = useState(true);
   const [heroImage, setHeroImage] = useState<string | null>(null);
@@ -48,21 +51,24 @@ export const HeroSection = () => {
   }, []);
 
   return (
-    <section className="relative grid min-h-[90vh] w-full grid-cols-2 items-center rounded-xl bg-gradient-to-l from-primary-500 via-primary-50 to-primary-25 p-10">
-      <div className="absolute -bottom-56 -right-14 -z-10 h-[500px] w-[435px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[86px]"></div>
+    <section className="relative min-h-[90vh] w-full grid-cols-2 items-center rounded-xl bg-gradient-to-l from-primary-500 via-primary-50 to-primary-25 p-10 md:grid">
+      <div className="absolute -bottom-64 right-0 -z-10 h-[500px] w-[435px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[86px]"></div>
       <article className="flex flex-col gap-y-8">
         <div className="flex flex-col gap-y-2">
-          <p className="text-sm font-medium text-black dark:text-white/90">
+          <p className="text-center text-sm font-medium text-black dark:text-white/90 md:text-left">
             Kami hadir untuk mempercantik hari-hari spesial Anda
           </p>
           <h1
-            className={`${rozha.className} text-title-3xl font-bold text-black dark:text-white/90`}
+            className={`${rozha.className} text-center text-title-2xl font-bold text-black dark:text-white/90 md:text-left md:text-title-3xl`}
           >
             Spesialis{" "}
-            <span className="inline-block text-primary-500">Make Up</span> Kamu
+            <span className="block text-center text-primary-500 md:inline-block md:text-left">
+              Make Up
+            </span>{" "}
+            Kamu
           </h1>
         </div>
-        <p className="w-[534px] text-justify font-jakarta text-base font-medium text-black opacity-45 dark:text-white/90">
+        <p className="text-center font-jakarta text-sm font-medium text-black opacity-45 dark:text-white/90 md:w-[534px] md:text-justify md:text-base">
           Nikmati layanan terbaik untuk kecantikan dan perawatan diri Anda. Kami
           hadir untuk memenuhi kebutuhan Anda dengan produk dan layanan
           berkualitas tinggi.
@@ -81,7 +87,11 @@ export const HeroSection = () => {
                 className={`relative rounded-full border-2 border-white ${index !== 0 ? "-ml-4" : ""}`}
               >
                 {item.user.image !== null ? (
-                  <Avatar alt={`profile-${item.user.username}`}  src={item.user.image} size="xxlarge" />
+                  <Avatar
+                    alt={`profile-${item.user.username}`}
+                    src={item.user.image}
+                    size="xxlarge"
+                  />
                 ) : (
                   <div className="h-[50px] w-[50px] rounded-full bg-[#D9D9D9]"></div>
                 )}
@@ -108,7 +118,7 @@ export const HeroSection = () => {
         </div>
       </article>
 
-      <aside className="flex h-full items-center justify-center">
+      <aside className="hidden h-full items-center justify-center md:flex">
         <div className="z-1 flex w-[80%] items-center rounded-3xl border border-white border-opacity-60 bg-white bg-opacity-25 px-8 py-10">
           <div className="relative flex w-fit rounded-xl px-8 py-10">
             {/* Shape sebagai Masking */}
@@ -140,6 +150,14 @@ export const HeroSection = () => {
           </div>
         </div>
       </aside>
+
+      <Modal isOpen={showModalError} onClose={() => setShowModalError(false)}>
+        <Alert
+          variant="error"
+          title="Pengambilan Data Gagal"
+          message="Terjadi kesalahan saat mengambil data."
+        />
+      </Modal>
     </section>
   );
 };

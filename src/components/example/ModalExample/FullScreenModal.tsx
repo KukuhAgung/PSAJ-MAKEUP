@@ -2,8 +2,8 @@
 import { useModal } from "@/hooks/useModal";
 import ComponentCard from "../../organism/common/ComponentCard";
 
-import Button from "../../ui/molecules/button/Button";
-import { Modal } from "../../ui/modal";
+import { Modal } from "@/components/molecules/modal";
+import Button from "@/components/molecules/button/Button";
 
 export default function FullScreenModal() {
   const {

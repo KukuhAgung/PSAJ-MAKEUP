@@ -4,8 +4,15 @@ import AnimateButton from "@/components/molecules/animate-button/AnimateButton";
 import Carousel from "./component/carousel";
 import { useEffect, useState } from "react";
 import { CarouselItem } from "./component/carousel/index.model";
+import useMediaQuery from "@/hooks/useMediaQuery";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Mousewheel } from "swiper/modules";
+import VideoPlay from "./component/carousel/component/VideoPlay";
+
 export const DescriptionSection = () => {
+  const mobile = useMediaQuery("(max-width: 768px)");
   const [isLoading, setIsLoading] = useState(false);
+  const [isOnPlay, setIsOnPlay] = useState<boolean>(false);
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([]);
 
   useEffect(() => {
@@ -23,37 +30,59 @@ export const DescriptionSection = () => {
           setIsLoading(true);
         }
       } catch (error) {
-        console.error("Error fetching description videos:", error);
+        console.error("Error fetching description videos:", error, isOnPlay);
       }
     };
     fetchDescriptionVideos();
   }, []);
 
   return (
-    <section className="relative grid min-h-[80vh] w-full grid-cols-2 items-center gap-x-20 p-10">
+    <section id="descriptionSection" className="relative min-h-[80vh] w-full grid-cols-2 items-center gap-x-20 p-10 md:grid">
       <div className="absolute -left-32 top-20 -z-10 h-[350px] w-[435px] bg-gradient-to-b from-primary-500 to-white opacity-70 blur-[88px]"></div>
       <aside className="relative flex justify-center">
-        {isLoading ? (
-          <Carousel
-            items={carouselItems}
-            baseWidth={600}
-            autoplay={true}
-            autoplayDelay={3000}
-            pauseOnHover={true}
-            loop={true}
-            round={false}
-          />
-        ) : (
-          <div className="h-full w-[300px] flex items-center justify-center rounded-xl">
-            <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-white"></div>
+        {!mobile && (
+            isLoading ? (
+              <Carousel
+                items={carouselItems}
+                baseWidth={600}
+                autoplay={!mobile}
+                autoplayDelay={3000}
+                pauseOnHover={true}
+                loop={true}
+                round={false}
+              />
+            ) : (
+              <div className="flex h-full w-[300px] items-center justify-center rounded-xl">
+                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-white"></div>
+              </div>
+            )
+        )}
+
+        {mobile && (
+          <div className="max-w-full flex flex-col gap-y-4">
+            <h1 className="text-base font-medium text-gray-800">Geser untuk melihat</h1>
+            <Swiper
+              spaceBetween={20}
+              slidesPerView={1}
+              mousewheel={{ forceToAxis: true }}
+              scrollbar={{ draggable: true }}
+              modules={[Mousewheel]}
+              className="w-full overflow-hidden"
+            >
+              {carouselItems.map((item) => (
+                <SwiperSlide key={item.id} className="relative">
+                  <VideoPlay src={item.video} setOnPlay={setIsOnPlay} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         )}
       </aside>
-      <article className="flex flex-col justify-center gap-y-9">
-        <h1 className="font-jakarta text-title-lg font-medium">
+      <article className="flex flex-col justify-center gap-y-9 mt-5 md:mt-0">
+        <h1 className="font-jakarta text-title-md md:text-title-lg font-medium">
           Pesona Kecantikan <span className="block">Dalam Setiap</span> Sapuan
         </h1>
-        <p className="text-justify font-jakarta text-base font-medium text-black opacity-60">
+        <p className="text-justify font-jakarta text-sm md:text-base font-medium text-black opacity-60">
           Setiap wajah memiliki keunikan, dan setiap sentuhan riasan membawa
           cerita tersendiri. Melalui video-video ini, lihat bagaimana kami
           menghadirkan tampilan terbaik untuk setiap momen spesial Anda. Dari

@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
 import ComponentCard from "../../organism/common/ComponentCard";
-import Button from "../../ui/molecules/button/Button";
-import { Modal } from "../../ui/modal";
+import Button from "@/components/molecules/button/Button";
+import { Modal } from "@/components/molecules/modal";
 import Label from "../../organism/form/Label";
-import Input from "../../form/input/InputField";
+import Input from "@/components/organism/form/input/InputField";
 import { useModal } from "@/hooks/useModal";
 
 export default function FormInModal() {

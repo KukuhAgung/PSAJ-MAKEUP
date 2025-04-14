@@ -17,7 +17,7 @@ import type { CarouselProps } from "./index.model"
 import type { productCategory } from "@/app/(pages)/product/index.model"
 import { useNavbar } from "@/context/NavbarContext"
 
-export const ProductCarousel: React.FC<CarouselProps> = ({ items }) => {
+export const ProductCarousel: React.FC<CarouselProps> = ({ items, mobile = false }) => {
   const { setActiveMenu } = useNavbar()
   const router = useRouter()
   const [products, setProducts] = useState(items)
@@ -55,7 +55,7 @@ export const ProductCarousel: React.FC<CarouselProps> = ({ items }) => {
   return (
     <Swiper
       spaceBetween={20}
-      slidesPerView={3}
+      slidesPerView={mobile ? 1 : 3}
       mousewheel={{ forceToAxis: true }}
       scrollbar={{ draggable: true }}
       modules={[Mousewheel]}

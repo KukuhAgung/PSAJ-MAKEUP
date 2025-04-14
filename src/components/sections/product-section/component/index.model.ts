@@ -7,5 +7,6 @@ export interface ProductCarousel{
 }
 
 export interface CarouselProps{
+    mobile?: boolean
     items: ProductCarousel[]
 }

@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import ComponentCard from "../../organism/common/ComponentCard";
-import Button from "../../ui/molecules/button/Button";
-import { Modal } from "../../ui/modal";
+import Button from "@/components/molecules/button/Button";
+import { Modal } from "@/components/molecules/modal";
 import { useModal } from "@/hooks/useModal";
 
 export default function VerticallyCenteredModal() {
