@@ -49,19 +49,21 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
   }, [currentPath,hovered]);
 
   useEffect(() => {  
-    switch (splitpath[1]) {
-      case "product":
-        localStorage.setItem("storePath", "Produk");
-        setActiveMenu("Produk");
-        break;
-      case "gallery":
-        localStorage.setItem("storePath", "Galeri");
-        setActiveMenu("Galeri");
-        break;
-      default:
-        localStorage.setItem("storePath", "Beranda");
-        setActiveMenu("Beranda");
-        break;
+    if (typeof window !== "undefined") {
+      switch (splitpath[1]) {
+        case "product":
+          localStorage.setItem("storePath", "Produk");
+          setActiveMenu("Produk");
+          break;
+        case "gallery":
+          localStorage.setItem("storePath", "Galeri");
+          setActiveMenu("Galeri");
+          break;
+        default:
+          localStorage.setItem("storePath", "Beranda");
+          setActiveMenu("Beranda");
+          break;
+      }
     }
   }, [splitpath,path])
 

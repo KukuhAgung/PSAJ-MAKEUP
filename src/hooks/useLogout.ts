@@ -1,3 +1,4 @@
+"use client"
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { useApi } from "./useFetchApi";
@@ -6,8 +7,10 @@ const useLogout = () => {
   const router = useRouter();
   const { trigger } = useApi("/api/user-service/logout");
   const logout = useCallback(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    }
     trigger(
       { method: "POST" },
       {

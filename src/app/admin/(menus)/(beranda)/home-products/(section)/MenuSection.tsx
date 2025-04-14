@@ -11,7 +11,9 @@ export const MenuSection = () => {
   const navigateProduct = (value: productCategory) => {
     // Navigate to the product page with the selected category
     router.push(`/admin/home-products?name=${value.toLowerCase()}`, { scroll: false })
-    localStorage.setItem("category", value.toLowerCase())
+    if (typeof window !== "undefined") {
+      localStorage.setItem("category", value.toLowerCase())
+    }
   }
 
   return (

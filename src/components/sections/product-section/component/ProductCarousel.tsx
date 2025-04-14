@@ -49,7 +49,9 @@ export const ProductCarousel: React.FC<CarouselProps> = ({ items, mobile = false
   const navigateProduct = (value: productCategory) => {
     router.push(`/product?name=${value.toLowerCase()}`, { scroll: true })
     setActiveMenu("Produk")
-    localStorage.setItem("storePath", "Produk")
+    if (typeof window !== "undefined") {
+      localStorage.setItem("storePath", "Produk")
+    }
   }
 
   return (

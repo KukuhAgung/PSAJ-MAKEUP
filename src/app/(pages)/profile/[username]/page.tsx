@@ -151,7 +151,9 @@ export default function Profile() {
                 username: res.username,
               };
               if (data.username !== res.data.username) {
-                localStorage.setItem("user", JSON.stringify(storeData));
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("user", JSON.stringify(storeData));
+                }
                 window.location.href = `/profile/${cleanUsername}`;
               }
             },

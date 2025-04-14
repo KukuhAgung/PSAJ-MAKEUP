@@ -18,7 +18,9 @@ export const Footer = () => {
         <Link
           href=""
           onClick={() => {
-            localStorage.setItem("storePath", "Beranda");
+            if (typeof window !== "undefined") {
+              localStorage.setItem("storePath", "Beranda");
+            }
             setActiveMenu("Beranda");
           }}
         >
@@ -27,7 +29,9 @@ export const Footer = () => {
         <Link
           href="/product"
           onClick={() => {
-            localStorage.setItem("storePath", "Produk");
+            if (typeof window !== "undefined") {
+              localStorage.setItem("storePath", "Produk");
+            }
             setActiveMenu("Produk");
           }}
         >
@@ -36,7 +40,9 @@ export const Footer = () => {
         <Link
           href="/gallery"
           onClick={() => {
-            localStorage.setItem("storePath", "Galeri");
+            if (typeof window !== "undefined") {
+              localStorage.setItem("storePath", "Galeri");
+            }
             setActiveMenu("Galeri");
           }}
         >
@@ -47,7 +53,9 @@ export const Footer = () => {
         <Link
           href=""
           onClick={() => {
-            localStorage.setItem("storePath", "Beranda");
+            if (typeof window !== "undefined") {
+              localStorage.setItem("storePath", "Beranda");
+            }
             setActiveMenu("Beranda");
           }}
         >
@@ -63,7 +71,9 @@ export const Footer = () => {
         <Link
           href="/product"
           onClick={() => {
-            localStorage.setItem("storePath", "Produk");
+            if (typeof window !== "undefined") {
+              localStorage.setItem("storePath", "Produk");
+            }
             setActiveMenu("Produk");
           }}
         >
@@ -79,7 +89,9 @@ export const Footer = () => {
         <Link
           href="/gallery"
           onClick={() => {
-            localStorage.setItem("storePath", "Galeri");
+            if (typeof window !== "undefined") {
+              localStorage.setItem("storePath", "Galeri");
+            }
             setActiveMenu("Galeri");
           }}
         >
