@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { NextRequest } from "next/server";
 import { z } from "zod";
 
 const prisma = new PrismaClient();
@@ -13,19 +12,20 @@ const updateUserSchema = z.object({
   role: z.enum(["USER", "ADMIN"]).optional(),
 });
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function PUT(request: Request) {
   try {
-    // Validasi ID pengguna
-    const userId = parseInt(params.id);
-    if (isNaN(userId)) {
+    // Ambil ID dari URL
+    const url = new URL(request.url);
+    const id = url.pathname.split("/").pop(); // Ambil bagian terakhir dari path sebagai ID
+
+    if (!id || isNaN(Number(id))) {
       return new Response(
         JSON.stringify({ code: 400, message: "Invalid user ID", data: null }),
         { status: 400 },
       );
     }
+
+    const userId = Number(id);
 
     // Parse body permintaan
     const body = await request.json();
