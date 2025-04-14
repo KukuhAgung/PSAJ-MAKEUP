@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
 
     // Upload file to Supabase Storage
     const { error: uploadError } = await supabase.storage
-      .from("portfolio-images") // Ganti "portfolio-images" dengan nama bucket Anda
+      .from("content") // Ganti "portfolio-images" dengan nama bucket "content"
       .upload(filename, processedImageBuffer, {
         contentType: "image/png", // Sesuaikan dengan tipe file
       });
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
 
     // Generate public URL for the uploaded file
     const { data: publicUrlData } = supabase.storage
-      .from("portfolio-images")
+      .from("content")
       .getPublicUrl(filename);
 
     // Validate public URL

@@ -69,11 +69,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a unique filename
-    const filename = `user-${userId}-${Date.now()}.png`;
+    const filename = `profile-${userId}-${Date.now()}.png`;
 
     // Upload file to Supabase Storage
     const { error: uploadError } = await supabase.storage
-      .from("user-images") // Ganti "user-images" dengan nama bucket Anda
+      .from("profiles") // Ganti "user-images" dengan nama bucket "profiles"
       .upload(filename, processedImageBuffer, {
         contentType: "image/png", // Sesuaikan dengan tipe file
       });
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     // Generate public URL for the uploaded file
     const { data: publicUrlData } = await supabase.storage
-      .from("user-images")
+      .from("profiles")
       .getPublicUrl(filename);
 
     // Validate public URL
