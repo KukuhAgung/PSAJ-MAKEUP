@@ -7,16 +7,16 @@ import {
   useEffect,
 } from "react";
 import { scrollInfo } from "framer-motion";
-import { pages } from "@/components/templates/navbar/index.data";
 import { usePathname } from "next/navigation";
 
+// Tipe untuk props context
 interface NavbarContextProps {
   yValue: number;
   setYValue: (value: number) => void;
   activeMenu: string;
-  setActiveMenu: (menu: pages) => void;
+  setActiveMenu: (menu: string) => void;
   hovered: string | null;
-  setHovered: (menu: pages | null) => void;
+  setHovered: (menu: string | null) => void;
 }
 
 const NavbarContext = createContext<NavbarContextProps | undefined>(undefined);
@@ -24,13 +24,17 @@ const NavbarContext = createContext<NavbarContextProps | undefined>(undefined);
 export const NavbarProvider = ({ children }: { children: ReactNode }) => {
   const path = usePathname();
   const splitpath = path.split("/");
-  const currentPath: pages =
-    (localStorage.getItem("storePath") as pages) || "Beranda";
-  const [activeMenu, setActiveMenu] = useState<pages>(currentPath);
-  const [hovered, setHovered] = useState<pages | null>(null);
+  const [activeMenu, setActiveMenu] = useState<string>(
+    (typeof window !== "undefined" && localStorage.getItem("storePath")) ||
+      "Beranda",
+  );
+  const [hovered, setHovered] = useState<string | null>(null);
   const [yValue, setYValue] = useState(0);
 
+  // Scroll listener
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const unsubscribe = scrollInfo(({ y }) => {
       setYValue(y.current);
     });
@@ -40,15 +44,8 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  // Update active menu berdasarkan path
   useEffect(() => {
-    if (hovered === null) {
-      setActiveMenu(currentPath);
-    } else {
-      setActiveMenu(hovered);
-    }
-  }, [currentPath,hovered]);
-
-  useEffect(() => {  
     if (typeof window !== "undefined") {
       switch (splitpath[1]) {
         case "product":
@@ -65,7 +62,16 @@ export const NavbarProvider = ({ children }: { children: ReactNode }) => {
           break;
       }
     }
-  }, [splitpath,path])
+  }, [splitpath]);
+
+  // Update active menu berdasarkan hover
+  useEffect(() => {
+    if (hovered === null) {
+      setActiveMenu((localStorage.getItem("storePath") as string) || "Beranda");
+    } else {
+      setActiveMenu(hovered);
+    }
+  }, [hovered]);
 
   return (
     <NavbarContext.Provider
