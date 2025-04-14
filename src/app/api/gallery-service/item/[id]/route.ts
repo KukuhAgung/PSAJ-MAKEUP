@@ -68,14 +68,21 @@ export async function PUT(
   { params }: { params: { id: string } },
 ) {
   try {
-    const id = Number.parseInt(params.id);
+    const { id } = params;
     const body = await request.json();
     const { imageUrl } = body;
 
-    if (isNaN(id)) {
+    // Validasi ID
+    if (!id || isNaN(Number(id))) {
       return new Response(
-        JSON.stringify({ code: 400, message: "Invalid ID format", data: null }),
-        { status: 400 },
+        JSON.stringify({
+          code: 400,
+          message: "Invalid ID",
+          data: null,
+        }),
+        {
+          status: 400,
+        },
       );
     }
 
@@ -92,7 +99,7 @@ export async function PUT(
 
     // Check if the gallery item exists
     const galleryItem = await prisma.galleryItem.findUnique({
-      where: { id },
+      where: { id: Number(id) },
     });
 
     if (!galleryItem) {
@@ -108,7 +115,7 @@ export async function PUT(
 
     // Update the gallery item
     const updatedGalleryItem = await prisma.galleryItem.update({
-      where: { id },
+      where: { id: Number(id) },
       data: {
         imageUrl,
         updatedAt: new Date(),
@@ -142,18 +149,25 @@ export async function DELETE(
   { params }: { params: { id: string } },
 ) {
   try {
-    const id = Number.parseInt(params.id);
+    const { id } = params;
 
-    if (isNaN(id)) {
+    // Validasi ID
+    if (!id || isNaN(Number(id))) {
       return new Response(
-        JSON.stringify({ code: 400, message: "Invalid ID format", data: null }),
-        { status: 400 },
+        JSON.stringify({
+          code: 400,
+          message: "Invalid ID",
+          data: null,
+        }),
+        {
+          status: 400,
+        },
       );
     }
 
     // Check if the gallery item exists
     const galleryItem = await prisma.galleryItem.findUnique({
-      where: { id },
+      where: { id: Number(id) },
     });
 
     if (!galleryItem) {
@@ -169,7 +183,7 @@ export async function DELETE(
 
     // Delete the gallery item
     await prisma.galleryItem.delete({
-      where: { id },
+      where: { id: Number(id) },
     });
 
     return new Response(
