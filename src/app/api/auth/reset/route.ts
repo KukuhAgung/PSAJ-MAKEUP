@@ -12,9 +12,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send reset password email using Supabase Auth
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXTAUTH_URL}/reset-password`, // Redirect URL for reset password page
+      redirectTo: `${process.env.NEXTAUTH_URL}/reset-password`,
     });
 
     if (error) {
@@ -40,7 +39,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error in reset password API:", error);
     return NextResponse.json(
-      { code: 500, message: "Internal Server Error", data: null },
+      { code: 500, message: "Internal Server Error", data: error },
       { status: 500 },
     );
   }
