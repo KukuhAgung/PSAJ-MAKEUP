@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from "next/server";
 import sharp from "sharp";
-import { supabase } from "@/lib/supabaseClient";
+import cloudinary from "@/lib/cloudinaryClient";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,8 +23,8 @@ export async function POST(request: NextRequest) {
     // Process the image using sharp
     const processedImageBuffer = await sharp(buffer)
       .resize({
-        width: 490,
-        height: 490,
+        width: 495,
+        height: 430,
         fit: "cover",
         position: "center",
       })
@@ -31,36 +32,33 @@ export async function POST(request: NextRequest) {
       .toBuffer();
 
     // Generate a unique filename
-    const filename = `hero-image-${Date.now()}.png`;
+    const filename = `hero-image-${Date.now()}`;
 
-    // Upload the processed image to Supabase Storage
-    const { error } = await supabase.storage
-      .from("content") // Bucket name
-      .upload(filename, processedImageBuffer, {
-        contentType: "image/png", // Set MIME type
-        upsert: false, // Prevent overwriting existing files
-      });
+    // Upload the processed image buffer to Cloudinary using upload_stream
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.v2.uploader
+        .upload_stream(
+          {
+            folder: "content",
+            public_id: filename,
+            resource_type: "image",
+            overwrite: true,
+            transformation: [{ width: 495, height: 430, crop: "fill" }],
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Error uploading to Cloudinary:", error);
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          },
+        )
+        .end(processedImageBuffer);
+    });
 
-    if (error) {
-      console.error("Error uploading to Supabase:", error);
-      return new Response(
-        JSON.stringify({
-          code: 500,
-          message: "Failed to upload to Supabase",
-          data: null,
-        }),
-        { status: 500 },
-      );
-    }
+    const imageUrl = (result as any).secure_url;
 
-    // Get the public URL of the uploaded image
-    const { data: urlData } = supabase.storage
-      .from("content")
-      .getPublicUrl(filename);
-
-    const imageUrl = urlData.publicUrl;
-
-    // Return success response with the image URL
     return new Response(
       JSON.stringify({
         code: 200,

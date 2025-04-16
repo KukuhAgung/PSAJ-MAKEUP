@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextRequest } from "next/server";
 import sharp from "sharp";
-import { supabase } from "@/lib/supabaseClient"; // Import Supabase client
+import cloudinary from "@/lib/cloudinaryClient";
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,24 +30,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
     let processedImageBuffer;
 
-    // Proses cropping jika ada cropData
     if (cropData) {
       try {
         const { x, y, width, height, scale } = JSON.parse(cropData);
 
-        // Hitung dimensi crop berdasarkan skala
         const actualX = Math.round(x / scale);
         const actualY = Math.round(y / scale);
         const actualWidth = Math.round(width / scale);
         const actualHeight = Math.round(height / scale);
 
-        // Crop gambar menggunakan sharp
         processedImageBuffer = await sharp(buffer)
           .extract({
             left: actualX,
@@ -57,7 +54,7 @@ export async function POST(request: NextRequest) {
           .resize({
             width: 500,
             height: 500,
-            fit: "fill", // Mengisi area tanpa mempertahankan aspek rasio
+            fit: "fill",
           })
           .toBuffer();
       } catch (cropError) {
@@ -72,53 +69,48 @@ export async function POST(request: NextRequest) {
         );
       }
     } else {
-      // Jika tidak ada cropData, resize gambar saja
       processedImageBuffer = await sharp(buffer)
         .resize({
           width: 500,
           height: 500,
-          fit: "contain", // Mempertahankan aspek rasio
-          background: { r: 255, g: 255, b: 255, alpha: 0 }, // Background transparan
+          fit: "contain",
+          background: { r: 255, g: 255, b: 255, alpha: 0 },
         })
         .toBuffer();
     }
 
-    // Buat nama file unik
-    const filename = `product-${productId}-${Date.now()}.png`;
 
-    // Upload file ke Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from("content") // Ganti "content" dengan nama bucket Anda
-      .upload(filename, processedImageBuffer, {
-        contentType: "image/png", // Sesuaikan dengan tipe file
-        upsert: false, // Tidak mengizinkan overwrite file yang sudah ada
-      });
+    const filename = `product-${productId}.png`;
 
-    if (uploadError) {
-      console.error("Error uploading file to Supabase:", uploadError);
-      return new Response(
-        JSON.stringify({
-          code: 500,
-          message: "Failed to upload file",
-          data: null,
-        }),
-        { status: 500 },
-      );
-    }
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.v2.uploader
+        .upload_stream(
+          {
+            folder: "content",
+            public_id: filename,
+            resource_type: "image",
+            overwrite: true,
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Error uploading to Cloudinary:", error);
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          },
+        )
+        .end(processedImageBuffer);
+    });
 
-    // Dapatkan public URL dari file yang diunggah
-    const { data: publicUrlData } = supabase.storage
-      .from("content")
-      .getPublicUrl(filename);
 
-    const publicUrl = publicUrlData.publicUrl;
+      const imageUrl = (result as any).secure_url;
 
-    // Kembalikan respons sukses dengan URL publik
     return new Response(
       JSON.stringify({
         code: 200,
         message: "File uploaded successfully",
-        data: { url: publicUrl, productId },
+        data: { url: imageUrl, productId },
       }),
       { status: 200 },
     );

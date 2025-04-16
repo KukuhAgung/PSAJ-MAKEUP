@@ -103,75 +103,79 @@ export const HeroSection = () => {
             Lihat Selengkapnya
           </Button>
         </div>
-        <div className="flex w-fit gap-x-4">
-          <div className="flex items-center">
-            {reviews?.data.reviews.slice(0, 3).map((item, index) => (
-              <div
-                key={index}
-                className={`relative rounded-full border-2 border-white ${index !== 0 ? "-ml-4" : ""}`}
-              >
-                {item.user.image !== null ? (
-                  <Avatar
-                    alt={`profile-${item.user.username}`}
-                    src={item.user.image}
-                    size="xxlarge"
-                  />
-                ) : (
-                  <div className="h-[50px] w-[50px] rounded-full bg-[#D9D9D9]"></div>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-col justify-center gap-y-1">
-            <div className="flex gap-x-3">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <StarIcon key={index} />
+        {reviews?.data && reviews.data.reviews.length > 0 ? (
+          <div className="flex w-fit gap-x-4">
+            <div className="flex items-center">
+              {reviews?.data.reviews.slice(0, 3).map((item, index) => (
+                <div
+                  key={index}
+                  className={`relative rounded-full border-2 border-white ${index !== 0 ? "-ml-4" : ""}`}
+                >
+                  {item.user.image !== null ? (
+                    <Avatar
+                      alt={`profile-${item.user.username}`}
+                      src={item.user.image}
+                      size="xxlarge"
+                    />
+                  ) : (
+                    <div className="h-[50px] w-[50px] rounded-full bg-[#D9D9D9]"></div>
+                  )}
+                </div>
               ))}
-              {reviews?.data.averageRating}
             </div>
-            <p className="text-sm text-black opacity-45 dark:text-white/90">
-              from{" "}
-              {reviews && reviews.data.totalCount > 5000
-                ? "5000+"
-                : reviews?.data.totalCount}{" "}
-              <Link href="#testimoni" className="font-bold underline">
-                reviews
-              </Link>
-            </p>
+            <div className="flex flex-col justify-center gap-y-1">
+              <div className="flex gap-x-3">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <StarIcon key={index} />
+                ))}
+                {reviews?.data.averageRating}
+              </div>
+              <p className="text-sm text-black opacity-45 dark:text-white/90">
+                from{" "}
+                {reviews && reviews.data.totalCount > 5000
+                  ? "5000+"
+                  : reviews?.data.totalCount}{" "}
+                <Link href="#testimoni" className="font-bold underline">
+                  reviews
+                </Link>
+              </p>
+            </div>
           </div>
-        </div>
+        ) : null}
       </article>
 
       <aside className="hidden h-full items-center justify-center md:flex">
         <div className="z-1 flex w-[80%] items-center rounded-3xl border border-white border-opacity-60 bg-white bg-opacity-25 px-8 py-10">
-          <div className="relative flex w-fit rounded-xl px-8 py-10">
-            {/* Shape sebagai Masking */}
-            <Image
-              priority
-              alt="hero-shape"
-              src="/images/shape/hero-shape.svg"
-              width={420}
-              height={420}
-              className="mask-image absolute left-0 top-0 h-full w-full drop-shadow-lg"
-            />
+          {!isLoading && (
+            <div className="relative flex w-fit rounded-xl px-8 py-10">
+              {/* Shape sebagai Masking */}
+              <Image
+                priority
+                alt="hero-shape"
+                src="/images/shape/hero-shape.svg"
+                width={420}
+                height={420}
+                className="mask-image absolute left-0 top-0 h-full w-full drop-shadow-lg"
+              />
 
-            {/* Gambar yang akan dimasking */}
-            <Image
-              priority
-              alt="hero-img"
-              src={heroImage || "/images/grid-image/hero.png"}
-              width={490}
-              height={490}
-              className="mask-image relative drop-shadow-2xl"
-            />
+              {/* Gambar yang akan dimasking */}
+              <Image
+                priority
+                alt="hero-img"
+                src={heroImage || "/images/grid-image/hero-image.png"}
+                width={490}
+                height={490}
+                className="mask-image relative drop-shadow-2xl"
+              />
+            </div>
+          )}
 
-            {/* Loading Indicator */}
-            {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center rounded-xl">
-                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-white"></div>
-              </div>
-            )}
-          </div>
+          {/* Loading Indicator */}
+          {isLoading && (
+            <div className="flex w-[545px] h-[527px] items-center justify-center">
+              <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-white"></div>
+            </div>
+          )}
         </div>
       </aside>
 

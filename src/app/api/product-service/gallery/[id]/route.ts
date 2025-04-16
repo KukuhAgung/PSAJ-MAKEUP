@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function PUT(request: Request) {
   try {
     const url = new URL(request.url);
-    const id = url.pathname.split("/").pop(); // Ambil ID dari URL
+    const id = url.pathname.split("/").pop();
 
     if (!id || isNaN(Number(id))) {
       return new Response(
@@ -35,7 +35,7 @@ export async function PUT(request: Request) {
 
     // Update the gallery item
     const updatedGalleryItem = await prisma.galleryProduct.update({
-      where: { id: id }, // Konversi ID ke number
+      where: { id: id },
       data: {
         image,
         updatedAt: new Date(),
