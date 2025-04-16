@@ -44,6 +44,8 @@ export default function Product() {
             })),
           }))
 
+          console.log("Transformed products:", transformedProducts);
+          
           setProducts(transformedProducts)
         }
       } catch (error) {
@@ -123,6 +125,10 @@ export default function Product() {
       console.error("Error updating gallery item:", error)
     }
   }
+
+  useEffect(() => {
+    console.log("filteredProducts", filteredProducts)
+  }, [filteredProducts])
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>

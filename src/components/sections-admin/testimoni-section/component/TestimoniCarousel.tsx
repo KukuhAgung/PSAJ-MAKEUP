@@ -8,22 +8,26 @@ import "swiper/css/mousewheel";
 import { TestimoniCard } from "./TestimoniCard";
 import { CarouselAction } from "./CarouselAction";
 import { useState } from "react";
+import { ITestimoniCarouselProps } from "../index.model";
 
-export const TestimoniCarousel = () => {
+export const TestimoniCarousel: React.FC<ITestimoniCarouselProps> = ({
+  items,
+  mobile = false,
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
     <Swiper
       spaceBetween={15}
-      slidesPerView={3}
+      slidesPerView={mobile ? 1 : 3}
       scrollbar={{ draggable: true }}
       modules={[Pagination, Navigation, Scrollbar]}
       onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
       className="w-full overflow-hidden"
     >
-      {Array.from({ length: 4 }).map((_, index) => (
-        <SwiperSlide key={index}>
-          <TestimoniCard />
+      {items.map((item) => (
+        <SwiperSlide key={item.id}>
+          <TestimoniCard item={item} />
         </SwiperSlide>
       ))}
       <CarouselAction activeIndex={activeIndex} />

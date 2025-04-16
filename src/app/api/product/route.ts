@@ -43,7 +43,6 @@ export async function GET() {
       { status: 200 },
     )
   } catch (error) {
-    console.error("Error retrieving products:", error)
-    return new Response(JSON.stringify({ code: 500, message: "Internal Server Error", data: null }), { status: 500 })
+    return new Response(JSON.stringify({ code: 500, message: "Internal Server Error", data: error }), { status: 500 })
   }
 }

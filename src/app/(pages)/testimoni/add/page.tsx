@@ -249,7 +249,6 @@ export default function TestimoniAdd() {
                 size="sm"
                 variant="outline"
                 transparent
-                disabled={quota <= 0}
                 className="w-full min-w-[130px] rounded-none"
                 onClick={() => router.back()}
               >

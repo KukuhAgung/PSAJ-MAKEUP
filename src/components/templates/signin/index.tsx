@@ -42,7 +42,9 @@ export const SignIn = () => {
         },
         {
           onSuccess: (res) => {
-            localStorage.setItem("token", res.data.token);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("token", res.data.token);
+            }
             window.location.reload();
           },
         },

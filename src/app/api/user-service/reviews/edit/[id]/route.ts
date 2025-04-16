@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getDecodedToken } from "@/lib/auth";
 import { PrismaClient } from "@prisma/client";
-import { NextRequest } from "next/server";
 
 const prisma = new PrismaClient();
 
@@ -31,35 +30,71 @@ const testimoniSchema = z.object({
     .max(5, "Rating maksimal 5"),
 });
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
-  const body = await req.json();
-  const token = req.cookies.get("token");
-  const nextAuthToken = req.cookies.get("next-auth.session-token");
-
-  // Pastikan pengguna memiliki token
-  if (!token && !nextAuthToken) {
-    return new Response(
-      JSON.stringify({ code: 401, message: "Unauthorized", data: null }),
-      {
-        status: 401,
-      },
-    );
-  }
-
-  let decoded: any = null;
-
+export async function PUT(request: Request) {
   try {
-    // Verifikasi token
-    if (token) {
-      decoded = await getDecodedToken(token.value, "token");
-    } else if (nextAuthToken) {
-      decoded = await getDecodedToken(nextAuthToken.value, "next-auth");
+    // Ambil ID dari URL
+    const url = new URL(request.url);
+    const id = url.pathname.split("/").pop(); // Ambil bagian terakhir dari path sebagai ID
+
+    // Validasi ID
+    if (!id || isNaN(Number(id))) {
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message: "Invalid ID",
+          data: null,
+        }),
+        {
+          status: 400,
+        },
+      );
     }
 
-    if (!decoded) {
+    const reviewId = Number(id);
+
+    // Ambil token dari cookies
+    const token = request.headers
+      .get("Cookie")
+      ?.split("; ")
+      .find((c) => c.startsWith("token="));
+    const nextAuthToken = request.headers
+      .get("Cookie")
+      ?.split("; ")
+      .find((c) => c.startsWith("next-auth.session-token"));
+
+    // Pastikan pengguna memiliki token
+    if (!token && !nextAuthToken) {
+      return new Response(
+        JSON.stringify({ code: 401, message: "Unauthorized", data: null }),
+        {
+          status: 401,
+        },
+      );
+    }
+
+    let decoded: any = null;
+
+    try {
+      // Verifikasi token
+      if (token) {
+        decoded = await getDecodedToken(token.split("=")[1], "token");
+      } else if (nextAuthToken) {
+        decoded = await getDecodedToken(
+          nextAuthToken.split("=")[1],
+          "next-auth",
+        );
+      }
+
+      if (!decoded) {
+        return new Response(
+          JSON.stringify({ code: 401, message: "Invalid token", data: null }),
+          {
+            status: 401,
+          },
+        );
+      }
+    } catch (error) {
+      console.error("Token verification failed:", error);
       return new Response(
         JSON.stringify({ code: 401, message: "Invalid token", data: null }),
         {
@@ -67,41 +102,33 @@ export async function PUT(
         },
       );
     }
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    return new Response(
-      JSON.stringify({ code: 401, message: "Invalid token", data: null }),
-      {
-        status: 401,
-      },
-    );
-  }
 
-  // Validasi input
-  const validationResult = testimoniSchema.safeParse(body);
+    // Parse body permintaan
+    const body = await request.json();
 
-  if (!validationResult.success) {
-    const errors = validationResult.error.format();
-    return new Response(
-      JSON.stringify({
-        code: 400,
-        message: "Bad Request",
-        data: errors,
-      }),
-      {
-        status: 400,
-      },
-    );
-  }
+    // Validasi input menggunakan Zod
+    const validationResult = testimoniSchema.safeParse(body);
 
-  const { rating, description, category } = validationResult.data;
-  const { id } = params;
+    if (!validationResult.success) {
+      const errors = validationResult.error.format();
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message: "Bad Request",
+          data: errors,
+        }),
+        {
+          status: 400,
+        },
+      );
+    }
 
-  try {
+    const { rating, description, category } = validationResult.data;
+
     // Cek apakah review dengan ID tertentu ada
     const existingReview = await prisma.review.findUnique({
       where: {
-        id: Number(id), // Konversi ID ke tipe number
+        id: reviewId, // Konversi ID ke tipe number
       },
     });
 
@@ -135,7 +162,7 @@ export async function PUT(
     // Update review
     const updatedReview = await prisma.review.update({
       where: {
-        id: Number(id),
+        id: reviewId,
       },
       data: {
         category: category,

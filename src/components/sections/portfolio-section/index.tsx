@@ -38,7 +38,9 @@ export const PortfolioSection = () => {
   const handleRouter = () => {
     router.push("/gallery", { scroll: true })
     setActiveMenu("Galeri")
-    localStorage.setItem("storePath", "Galeri")
+    if (typeof window !== "undefined") {
+      localStorage.setItem("storePath", "Galeri")
+    }
   }
 
   return (

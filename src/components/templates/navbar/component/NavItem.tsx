@@ -29,7 +29,9 @@ const NavItem = ({
       <Link
         href={to}
         onClick={() => {
-          localStorage.setItem("storePath", label);
+           if (typeof window !== "undefined") {
+             localStorage.setItem("storePath", label);
+             }
           setActive(label);
         }}
         className="flex h-[38px] w-[84px] items-center justify-center text-base text-primary-500 gap-x-2"

@@ -1,94 +1,105 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
-import AnimateButton from "@/components/molecules/animate-button/AnimateButton"
-import type React from "react"
+"use client";
+import AnimateButton from "@/components/molecules/animate-button/AnimateButton";
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Carousel from "./component/carousel"
-import type { CarouselItem } from "./component/carousel/index.model"
+import { useState, useEffect } from "react";
+import Carousel from "./component/carousel";
+import type { CarouselItem } from "./component/carousel/index.model";
 
 // Toast notification component
-const Toast = ({ message, type, onClose }: { message: string; type: "success" | "error"; onClose: () => void }) => {
+const Toast = ({
+  message,
+  type,
+  onClose,
+}: {
+  message: string;
+  type: "success" | "error";
+  onClose: () => void;
+}) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      onClose()
-    }, 3000)
+      onClose();
+    }, 3000);
 
-    return () => clearTimeout(timer)
-  }, [onClose])
+    return () => clearTimeout(timer);
+  }, [onClose]);
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-md shadow-lg ${
-        type === "success" ? "bg-primary-500 text-white" : "bg-red-500 text-white"
+      className={`fixed right-4 top-4 z-50 rounded-md px-4 py-2 shadow-lg ${
+        type === "success"
+          ? "bg-primary-500 text-white"
+          : "bg-red-500 text-white"
       }`}
     >
       {message}
     </div>
-  )
-}
+  );
+};
 
 export const DescriptionSection = () => {
-  const [finishedFetch, setFinishedFetch] = useState(false)
-  const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([])
-  const [isLoading, setIsLoading] = useState<number | null>(null)
-  const [showConfirmation, setShowConfirmation] = useState<number | null>(null)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
+  const [finishedFetch, setFinishedFetch] = useState(false);
+  const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([]);
+  const [isLoading, setIsLoading] = useState<number | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState<number | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   // Fetch description videos on component mount
   useEffect(() => {
     const fetchDescriptionVideos = async () => {
       try {
-        const response = await fetch("/api/description")
-        const data = await response.json()
+        const response = await fetch("/api/description");
+        const data = await response.json();
 
         if (data.code === 200 && data.data) {
           // Map the API data to match our component's expected format
           const mappedCarouselItems = data.data.map((item: any) => ({
             id: item.id,
             video: item.videoUrl,
-          }))
-          setCarouselItems(mappedCarouselItems)
-          setFinishedFetch(true)
+          }));
+          setCarouselItems(mappedCarouselItems);
+          setFinishedFetch(true);
         }
       } catch (error) {
-        console.error("Error fetching description videos:", error)
+        console.error("Error fetching description videos:", error);
       }
-    }
-    fetchDescriptionVideos()
-  }, [])
+    };
+    fetchDescriptionVideos();
+  }, []);
 
   const showToast = (message: string, type: "success" | "error") => {
-    setToast({ message, type })
-  }
-
-  
+    setToast({ message, type });
+  };
 
   const handleConfirmUpload = async () => {
-    if (!selectedFile || showConfirmation === null) return
+    if (!selectedFile || showConfirmation === null) return;
 
-    const videoId = showConfirmation
+    const videoId = showConfirmation;
 
     try {
-      setIsLoading(videoId)
-      setShowConfirmation(null)
-      setFinishedFetch(false)
+      setIsLoading(videoId);
+      setShowConfirmation(null);
+      setFinishedFetch(false);
 
       // Upload the file
-      const formData = new FormData()
-      formData.append("file", selectedFile)
-      formData.append("videoId", videoId.toString())
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("videoId", videoId.toString());
 
       const uploadResponse = await fetch("/api/description/upload", {
         method: "POST",
         body: formData,
-      })
+      });
 
-      const uploadData = await uploadResponse.json()
+      const uploadData = await uploadResponse.json();
 
       if (uploadData.code !== 200) {
-        throw new Error(uploadData.message)
+        throw new Error(uploadData.message);
       }
 
       // Update the database with the new video URL
@@ -101,34 +112,36 @@ export const DescriptionSection = () => {
           videoId: videoId,
           videoUrl: uploadData.data.url,
         }),
-      })
+      });
 
-      const updateData = await updateResponse.json()
+      const updateData = await updateResponse.json();
 
       if (updateData.code !== 200) {
-        throw new Error(updateData.message)
+        throw new Error(updateData.message);
       }
 
       // Update the carousel item in state with the final URL from the server
       setCarouselItems((prevItems) =>
-        prevItems.map((item) => (item.id === videoId ? { ...item, video: uploadData.data.url } : item)),
-      )
+        prevItems.map((item) =>
+          item.id === videoId ? { ...item, video: uploadData.data.url } : item,
+        ),
+      );
 
-      showToast("Video updated successfully", "success")
-      setFinishedFetch(true)
+      showToast("Video updated successfully", "success");
+      setFinishedFetch(true);
     } catch (error) {
-      console.error("Error updating video:", error)
-      showToast("Failed to update video", "error")
+      console.error("Error updating video:", error);
+      showToast("Failed to update video", "error");
     } finally {
-      setIsLoading(null)
-      setSelectedFile(null)
+      setIsLoading(null);
+      setSelectedFile(null);
     }
-  }
+  };
 
   const handleCancelUpload = () => {
-    setShowConfirmation(null)
-    setSelectedFile(null)
-  }
+    setShowConfirmation(null);
+    setSelectedFile(null);
+  };
 
   return (
     <section className="relative grid min-h-[80vh] w-full grid-cols-2 items-center gap-x-20 p-10">
@@ -152,8 +165,8 @@ export const DescriptionSection = () => {
           )}
           {/* Loading indicator */}
           {isLoading !== null && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-black bg-opacity-50">
-              <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-white"></div>
+            <div className="flex h-[527px] w-[545px] items-center justify-center">
+              <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-gray-900"></div>
             </div>
           )}
         </div>
@@ -223,4 +236,4 @@ export const DescriptionSection = () => {
       )}
     </section>
   );
-}
+};

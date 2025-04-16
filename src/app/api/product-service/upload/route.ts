@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextRequest } from "next/server";
 import sharp from "sharp";
-import { supabase } from "@/lib/supabaseClient"; // Import Supabase client
+import cloudinary from "@/lib/cloudinaryClient";
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const type = formData.get("type") as string; // 'hero', 'banner', or 'gallery'
+    const type = formData.get("type") as string;
 
     if (!file) {
       return new Response(
@@ -19,22 +20,19 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     let processedImageBuffer;
-    let folderPath;
     let filename;
 
-    // Process the image based on type
     switch (type) {
       case "hero":
         processedImageBuffer = await sharp(buffer)
           .resize({
-            width: 490,
-            height: 490,
+            width: 495,
+            height: 430,
             fit: "cover",
             position: "center",
           })
           .toBuffer();
-        folderPath = "grid-image";
-        filename = `hero-image-${Date.now()}.png`;
+        filename = `hero-image-product`;
         break;
 
       case "banner":
@@ -46,8 +44,7 @@ export async function POST(request: NextRequest) {
             position: "center",
           })
           .toBuffer();
-        folderPath = "product";
-        filename = `product-banner-${Date.now()}.png`;
+        filename = `product-banner-${Date.now()}`;
         break;
 
       case "gallery":
@@ -59,8 +56,7 @@ export async function POST(request: NextRequest) {
             position: "center",
           })
           .toBuffer();
-        folderPath = "gallery/before-after";
-        filename = `after-${Date.now()}.png`;
+        filename = `after-${Date.now()}`;
         break;
 
       default:
@@ -74,49 +70,36 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // Upload file to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from("content") // Ganti "images" dengan nama bucket "content"
-      .upload(`${folderPath}/${filename}`, processedImageBuffer, {
-        contentType: "image/png", // Sesuaikan dengan tipe file
-      });
+    // Upload the processed image buffer to Cloudinary using upload_stream
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.v2.uploader
+        .upload_stream(
+          {
+            folder: "content",
+            public_id: filename,
+            resource_type: "image",
+            overwrite: false,
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Error uploading to Cloudinary:", error);
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          },
+        )
+        .end(processedImageBuffer);
+    });
 
-    if (uploadError) {
-      console.error("Error uploading file to Supabase:", uploadError);
-      return new Response(
-        JSON.stringify({
-          code: 500,
-          message: "Failed to upload file",
-          data: null,
-        }),
-        { status: 500 },
-      );
-    }
-
-    // Generate public URL for the uploaded file
-    const { data: publicUrlData } = await supabase.storage
-      .from("content")
-      .getPublicUrl(`${folderPath}/${filename}`);
-
-    // Validate public URL
-    if (!publicUrlData?.publicUrl) {
-      console.error("Failed to generate public URL");
-      return new Response(
-        JSON.stringify({
-          code: 500,
-          message: "Failed to generate public URL",
-          data: null,
-        }),
-        { status: 500 },
-      );
-    }
+    const imageUrl = (result as any).secure_url;
 
     // Return the public URL of the uploaded file
     return new Response(
       JSON.stringify({
         code: 200,
         message: "File uploaded successfully",
-        data: { url: publicUrlData.publicUrl },
+        data: { url: imageUrl },
       }),
       { status: 200 },
     );

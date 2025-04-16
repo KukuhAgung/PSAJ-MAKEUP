@@ -1,12 +1,16 @@
-import { productCategory } from "@/app/(pages)/product/index.model";
+import {
+  productCategory,
+} from "@/app/(pages)/product/index.model";
 
-export interface ProductCarousel{
-    id: number;
-    image: string;
-    button: productCategory;
+export interface IProductsResponse {
+  category: productCategory;
+  createdAt: string;
+  id: number;
+  imageUrl: string;
+  updatedAt: string;
 }
 
-export interface CarouselProps{
-    mobile?: boolean
-    items: ProductCarousel[]
+export interface CarouselProps {
+  mobile?: boolean;
+  items: IProductsResponse[];
 }

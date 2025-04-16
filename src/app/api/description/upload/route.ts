@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextRequest } from "next/server";
-import { supabase } from "@/lib/supabaseClient"; // Import Supabase client
+import cloudinary from "@/lib/cloudinaryClient";
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,55 +43,40 @@ export async function POST(request: NextRequest) {
     const fileExtension = fileType.split("/")[1];
 
     // Create a unique filename
-    const filename = `video-${videoId}-${Date.now()}.${fileExtension}`;
+    const filename = `video-${videoId}.${fileExtension}`;
 
     // Convert the file to a buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Upload file to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from("videos") // Ganti "videos" dengan nama bucket Anda
-      .upload(filename, buffer, {
-        contentType: fileType, // Gunakan tipe file asli
-      });
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.v2.uploader
+        .upload_stream(
+          {
+            folder: "content",
+            public_id: filename,
+            resource_type: "image",
+            overwrite: true,
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Error uploading to Cloudinary:", error);
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          },
+        )
+        .end(buffer);
+    });
 
-    if (uploadError) {
-      console.error("Error uploading file to Supabase:", uploadError);
-      return new Response(
-        JSON.stringify({
-          code: 500,
-          message: "Failed to upload file",
-          data: null,
-        }),
-        { status: 500 },
-      );
-    }
-
-    // Generate public URL for the uploaded file
-    const { data: publicUrlData } = await supabase.storage
-      .from("videos")
-      .getPublicUrl(filename);
-
-    // Validate public URL
-    if (!publicUrlData?.publicUrl) {
-      console.error("Failed to generate public URL");
-      return new Response(
-        JSON.stringify({
-          code: 500,
-          message: "Failed to generate public URL",
-          data: null,
-        }),
-        { status: 500 },
-      );
-    }
-
+    const imageUrl = (result as any).secure_url;
     // Return the public URL of the uploaded file
     return new Response(
       JSON.stringify({
         code: 200,
         message: "File uploaded successfully",
-        data: { url: publicUrlData.publicUrl, videoId },
+        data: { url: imageUrl, videoId },
       }),
       { status: 200 },
     );

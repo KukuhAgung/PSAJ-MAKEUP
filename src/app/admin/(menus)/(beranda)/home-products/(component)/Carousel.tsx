@@ -27,6 +27,8 @@ export const Carousel: React.FC<ExtendedCarouselProps> = ({ items, onUpdate }) =
   const [isLoading, setIsLoading] = useState(false)
 
   const handleEditImage = (index: number, itemId: string | number) => {
+    console.log(index, itemId);
+    
     setSelectedItemId(itemId)
     fileInputRefs.current[index]?.click()
   }
