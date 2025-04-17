@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 
@@ -37,7 +38,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ src, onSave }) => {
     console.log(containerSize);
     
     img.src = src
-  }, [src])
+  }, [src, containerSize])
 
   // Handle zoom
   const handleZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +75,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ src, onSave }) => {
     <div className="flex flex-col gap-4">
       <div ref={containerRef} className="relative w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
-          <img
+          <Image
             ref={imageRef}
             src={src || "/placeholder.svg"}
             alt="Edit preview"

@@ -1,57 +1,51 @@
 "use client";
 import { Modal } from "@/components/molecules/modal";
 import Input from "@/components/organism/form/input/InputField";
+import Label from "@/components/organism/form/Label";
 import { Button } from "@/components/ui/button";
-import { useApi } from "@/hooks/useFetchApi";
+import { EyeCloseIcon, EyeIcon } from "@/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { MdOutlineMail } from "react-icons/md";
 import { z } from "zod";
 
-const emailSchema = z.object({
-  email: z.string().email("Email tidak valid"),
+const passwordSchema = z.object({
+  password: z.string().min(6, "Password minimal 6 karakter"),
+  confirmPassword: z.string().min(6, "Password minimal 6 karakter"),
 });
 
-type FormValues = z.infer<typeof emailSchema>;
+type FormValues = z.infer<typeof passwordSchema>;
 
-export default function ResetPassword() {
-  const { trigger: triggerEmail } = useApi("/api/auth/reset");
+export default function ResetNewPassword() {
+  const router = useRouter();
+  const [countdown, setCountdown] = useState(3);
   const [isLoading, setIsLoading] = useState(false);
   const [showModalSuccess, setShowModalSuccess] = useState(false);
   const [showModalError, setShowModalError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(emailSchema),
+    resolver: zodResolver(passwordSchema),
   });
 
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
-    try {
-      await triggerEmail(
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: data,
-        },
-        {
-          onSuccess: () => {
-            setShowModalSuccess(true);
-            setIsLoading(false);
-          },
-          onError: () => {
-            setShowModalError(true);
-            setIsLoading(false);
-          }
-        },
-      );
-    } catch (error) {
-      console.error("Error sending reset password email:", error);
-    }
+    console.log(data);
   };
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      router.push("/");
+    }
+  }, [countdown, router]);
 
   if (isLoading) {
     return (
@@ -60,10 +54,10 @@ export default function ResetPassword() {
       </section>
     );
   }
-  
+
   return (
-    <section className="relative flex min-h-[80vh] w-full flex-col items-center justify-center gap-4 rounded-xl bg-gradient-to-l p-10">
-      <div className="flex flex-col items-center gap-y-2">
+    <section className="relative flex min-h-[90vh] w-full flex-col items-center justify-center gap-4 rounded-xl bg-gradient-to-l p-10">
+      <div className="mb-5 flex flex-col items-center gap-y-2">
         <h1 className="text-title-md font-bold md:text-title-lg">
           Reset Password
         </h1>
@@ -75,18 +69,56 @@ export default function ResetPassword() {
         onSubmit={handleSubmit(onSubmit)}
         className="flex w-full flex-col gap-y-4 md:w-[400px]"
       >
-        {/* Email Input */}
+        {/* New Password Input */}
         <div>
-          <Input
-            iconLeft={<MdOutlineMail size={20} fontWeight={400} />}
-            {...register("email")}
-            error={errors.email ? true : false}
-            placeholder="Masukkan email"
-          />
-          {errors.email && (
-            <p className="text-sm text-error-500">{errors.email.message}</p>
+          <div className="relative">
+            <Label>Password Baru</Label>
+            <Input
+              {...register("password")}
+              type={showPassword ? "text" : "password"}
+              placeholder="Password Baru"
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 z-30 cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+              ) : (
+                <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+              )}
+            </span>
+          </div>
+          {errors.password && (
+            <p className="text-sm text-error-500">{errors.password.message}</p>
           )}
         </div>
+
+        {/* Password Input */}
+        <div>
+          <div className="relative">
+            <Label>Konfirmasi Password</Label>
+            <Input
+              {...register("confirmPassword")}
+              type={showPassword ? "text" : "confirmPassword"}
+              placeholder="Password"
+            />
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 z-30 cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+              ) : (
+                <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+              )}
+            </span>
+          </div>
+          {errors.password && (
+            <p className="text-sm text-error-500">{errors.password.message}</p>
+          )}
+        </div>
+
         <Button
           type="submit"
           color="primary"
@@ -143,7 +175,8 @@ export default function ResetPassword() {
             Verifikasi Berhasil
           </h4>
           <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
-            Silahkan cek email anda untuk melakukan reset password
+            Password telah diubah anda akan dialihkan ke beranda dalam{" "}
+            {countdown} detik. atau klik tombol dibawah
           </p>
 
           <div className="mt-7 flex w-full items-center justify-center gap-3">
@@ -151,6 +184,7 @@ export default function ResetPassword() {
               type="button"
               onClick={() => {
                 setShowModalSuccess(false);
+                router.push("/");
               }}
               className="flex w-full justify-center rounded-lg bg-success-500 px-4 py-3 text-sm font-medium text-white shadow-theme-xs hover:bg-success-600 sm:w-auto"
             >

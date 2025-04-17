@@ -8,7 +8,6 @@ import {
   UserIcon,
   LockIcon,
 } from "@/icons";
-import Link from "next/link";
 import { useState } from "react";
 import { Backdrop } from "../backdrop";
 import { useForm } from "react-hook-form";
@@ -182,7 +181,7 @@ export const SignUp = () => {
                       </p>
                     )}
                   </div>
-
+{/* 
                   <div className="flex items-center justify-between">
                     <Link
                       href="/reset-password"
@@ -190,7 +189,7 @@ export const SignUp = () => {
                     >
                       Lupa kata sandi?
                     </Link>
-                  </div>
+                  </div> */}
 
                   {/* Submit Button */}
                   <div>
