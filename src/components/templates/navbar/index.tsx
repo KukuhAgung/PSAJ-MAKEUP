@@ -57,6 +57,14 @@ export const Navbar = () => {
     );
   }, [trigger]);
 
+  useEffect(() => {
+    if (mobileNavbar) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [mobileNavbar]);
+
   return (
     <motion.header
       variants={variants}
@@ -144,60 +152,61 @@ export const Navbar = () => {
             variants={variantsNav}
             initial="initial"
             animate={mobileNavbar ? "visible" : "hidden"}
-            className="absolute left-0 top-0 z-50 flex h-screen w-full flex-col items-center justify-center gap-y-2 bg-white px-6 py-2"
+            className="absolute left-0 top-0 z-50 flex min-h-screen max-h-[120vh] w-full flex-col items-center justify-center gap-y-2 bg-white px-6 py-2"
           >
-            <motion.button
-              className="fixed left-10 top-14"
-              variants={variantsNav}
-              initial="initialButton"
-              animate="visibleButton"
-              transition={{
-                duration: 0.5,
-                delay: 0.5,
-                ease: "easeInOut",
-                type: "spring",
-              }}
-              onClick={() => setMobileNavbar(!mobileNavbar)}
-            >
-              <LiaTimesSolid size={25} />
-            </motion.button>
-            {isLogin && data ? (
-              <div className="fixed right-10 top-10">
-                <UserDropdown
-                  onUserPage
-                  isOpen={open}
-                  setIsOpen={setOpen}
-                  image={data.image}
-                  username={data.username}
-                  id={data.id}
-                  email={data.email}
-                  editProfile
-                  inputReview
-                />
-              </div>
-            ) : (
-              <div className="fixed right-0 top-10">
-                <Button
-                  onClick={() => {
-                    setIsRegister(true);
-                    setBackdrop(true);
-                  }}
-                  size="sm"
-                  variant="outline"
-                >
-                  Register
-                </Button>
-                <Button
-                  onClick={() => {
-                    setIsRegister(false);
-                    setBackdrop(true);
-                  }}
-                  size="sm"
-                >
-                  Log In
-                </Button>
-              </div>
-            )}
+            <div className="fixed top-10 flex w-full items-center justify-between px-6">
+              <motion.button
+                variants={variantsNav}
+                initial="initialButton"
+                animate="visibleButton"
+                transition={{
+                  duration: 0.5,
+                  delay: 0.5,
+                  ease: "easeInOut",
+                  type: "spring",
+                }}
+                onClick={() => setMobileNavbar(!mobileNavbar)}
+              >
+                <LiaTimesSolid size={25} />
+              </motion.button>
+              {isLogin && data ? (
+                <div>
+                  <UserDropdown
+                    onUserPage
+                    isOpen={open}
+                    setIsOpen={setOpen}
+                    image={data.image}
+                    username={data.username}
+                    id={data.id}
+                    email={data.email}
+                    editProfile
+                    inputReview
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center gap-x-4">
+                  <Button
+                    onClick={() => {
+                      setIsRegister(true);
+                      setBackdrop(true);
+                    }}
+                    size="sm"
+                    variant="outline"
+                  >
+                    Register
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsRegister(false);
+                      setBackdrop(true);
+                    }}
+                    size="sm"
+                  >
+                    Log In
+                  </Button>
+                </div>
+              )}
+            </div>
             <ul>
               {menus.map((item, index) => (
                 <NavItem

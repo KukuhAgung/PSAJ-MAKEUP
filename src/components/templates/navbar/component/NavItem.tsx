@@ -9,7 +9,7 @@ interface NavItemProps {
   active: string;
   setHovered: (menu: pages | null) => void;
   setActive: (menu: pages) => void;
-  mobile: boolean
+  mobile: boolean;
 }
 
 const NavItem = ({
@@ -18,7 +18,7 @@ const NavItem = ({
   active,
   setActive,
   setHovered,
-  mobile
+  mobile,
 }: NavItemProps) => {
   return (
     <motion.li
@@ -29,12 +29,12 @@ const NavItem = ({
       <Link
         href={to}
         onClick={() => {
-           if (typeof window !== "undefined") {
-             localStorage.setItem("storePath", label);
-             }
+          if (typeof window !== "undefined") {
+            localStorage.setItem("storePath", label);
+          }
           setActive(label);
         }}
-        className="flex h-[38px] w-[84px] items-center justify-center text-base text-primary-500 gap-x-2"
+        className="mb-6 flex h-full w-full items-center justify-center gap-x-2 text-center text-2xl text-primary-500 md:mb-0 md:h-[38px] md:w-[84px] md:text-left md:text-base"
       >
         {label}
       </Link>

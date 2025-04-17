@@ -14,7 +14,7 @@ export const Footer = () => {
         height={77}
         className="block h-fit w-[227px] self-center object-cover object-center"
       />
-      <ul className="flex min-w-[542px] list-none justify-center gap-x-12 text-base">
+      <ul className="flex min-w-full md:min-w-[542px] list-none justify-center gap-x-12 text-base">
         <Link
           href=""
           onClick={() => {
