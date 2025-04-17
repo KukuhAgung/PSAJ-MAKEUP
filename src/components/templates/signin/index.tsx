@@ -2,7 +2,6 @@
 import Input from "@/components/organism/form/input/InputField";
 import Button from "@/components/molecules/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon, LockIcon } from "@/icons";
-import Link from "next/link";
 import { useState } from "react";
 import { Backdrop } from "../backdrop";
 import { useForm } from "react-hook-form";
@@ -122,14 +121,14 @@ export const SignIn = () => {
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  {/* <div className="flex items-center justify-between">
                     <Link
                       href="/reset-password"
                       className="text-sm text-primary-500 underline hover:text-primary-600 dark:text-primary-400"
                     >
                       Lupa kata sandi?
                     </Link>
-                  </div>
+                  </div> */}
 
                   {/* Submit Button */}
                   <div>

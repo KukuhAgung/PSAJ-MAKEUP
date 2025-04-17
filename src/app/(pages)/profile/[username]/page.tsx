@@ -187,7 +187,7 @@ export default function Profile() {
         },
       },
     );
-  }, []);
+  }, [triggerProfile]);
 
   useEffect(() => {
     if (data) {
@@ -197,7 +197,7 @@ export default function Profile() {
         setValue("phoneNumber", data.phoneNumber.slice(3).trim() || "");
       if (data.address) setValue("address", data.address || "");
     }
-  }, [data]);
+  }, [data, setValue]);
 
   useEffect(() => {
     return () => {

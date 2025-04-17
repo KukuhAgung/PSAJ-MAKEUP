@@ -1,5 +1,4 @@
 "use client"
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState, useEffect, useCallback } from "react"
 import type React from "react"
@@ -97,7 +96,6 @@ export default function IncomeDashboard() {
   // Pastikan useEffect dipanggil ketika filter berubah
   
   useEffect(() => {
-    console.log(`Filter changed: month=${selectedMonth}, year=${selectedYear}`)
     fetchIncomeData()
   }, [fetchIncomeData,selectedMonth, selectedYear])
 

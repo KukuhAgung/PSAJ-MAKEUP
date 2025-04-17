@@ -20,7 +20,7 @@ export const TestimoniSection = () => {
         },
       },
     );
-  }, []);
+  }, [trigger]);
     
   return (
     <section className="flex min-h-[90vh] flex-col justify-center gap-y-14 overflow-hidden rounded-xl border border-white bg-primary-500 bg-opacity-10 px-10 py-20">

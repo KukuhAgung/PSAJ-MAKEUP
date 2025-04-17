@@ -141,29 +141,49 @@ export async function POST(request: NextRequest) {
 
     // Upload the processed image buffer to Cloudinary using upload_stream
     const result = await new Promise((resolve, reject) => {
-      cloudinary.v2.uploader
-        .upload_stream(
-          {
-            folder: type === "hero" ? "grid-image" : "gallery",
-            public_id: filename.split(".")[0],
-            resource_type: "image",
-            overwrite: false,
-            transformation: [{ width: 430, height: 490, crop: "fill" }],
-          },
-          (error, result) => {
-            if (error) {
-              console.error("Error uploading to Cloudinary:", error);
-              reject(error);
-            } else {
-              resolve(result);
-            }
-          },
-        )
-        .end(processedImageBuffer);
+      if (type === "hero") {
+        cloudinary.v2.uploader
+          .upload_stream(
+            {
+              folder: "grid-image",
+              public_id: filename.split(".")[0],
+              resource_type: "image",
+              overwrite: false,
+              transformation: [{ width: 495, height: 430, crop: "fill" }],
+            },
+            (error, result) => {
+              if (error) {
+                console.error("Error uploading to Cloudinary:", error);
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            },
+          )
+          .end(processedImageBuffer);
+      } else {
+        cloudinary.v2.uploader
+          .upload_stream(
+            {
+              folder: "gallery",
+              public_id: filename.split(".")[0],
+              resource_type: "image",
+              overwrite: false,
+            },
+            (error, result) => {
+              if (error) {
+                console.error("Error uploading to Cloudinary:", error);
+                reject(error);
+              } else {
+                resolve(result);
+              }
+            },
+          )
+          .end(processedImageBuffer);
+      }
     });
 
-      const imageUrl = (result as any).secure_url;
-
+    const imageUrl = (result as any).secure_url;
 
     return new Response(
       JSON.stringify({

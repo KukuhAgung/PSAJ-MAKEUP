@@ -8,7 +8,7 @@ export async function PUT(request: Request) {
     const url = new URL(request.url);
     const id = url.pathname.split("/").pop();
 
-    if (!id || isNaN(Number(id))) {
+    if (!id) {
       return new Response(
         JSON.stringify({
           code: 400,
@@ -56,7 +56,7 @@ export async function PUT(request: Request) {
       JSON.stringify({
         code: 500,
         message: "Internal Server Error",
-        data: null,
+        data: error,
       }),
       { status: 500 },
     );

@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import sharp from "sharp";
 import cloudinary from "@/lib/cloudinaryClient";
 
+
 export async function POST(request: NextRequest) {
   try {
     // Parse form data

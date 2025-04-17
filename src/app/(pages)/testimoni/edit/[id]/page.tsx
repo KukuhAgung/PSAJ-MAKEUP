@@ -163,7 +163,7 @@ export default function TestimoniEdit() {
         },
       },
     );
-  }, []);
+  }, [triggerTestimoni]);
 
   useEffect(() => {
     if (data) {
@@ -173,7 +173,7 @@ export default function TestimoniEdit() {
       setMessage(data.comment);
       setRating(data.stars);
     }
-  }, [data]);
+  }, [data, setValue]);
 
   return (
     <section className="flex min-h-[80vh] w-full max-w-[90%] flex-col items-center justify-center gap-y-12 self-center bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:max-w-[80%] lg:p-6">

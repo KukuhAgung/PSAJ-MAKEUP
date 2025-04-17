@@ -55,7 +55,7 @@ export const Navbar = () => {
         },
       },
     );
-  }, []);
+  }, [trigger]);
 
   return (
     <motion.header
