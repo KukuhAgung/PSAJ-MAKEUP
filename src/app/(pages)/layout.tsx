@@ -15,7 +15,7 @@ export default function MainPageLayout({
   return (
     <>
       <Navbar />
-      <main className="relative mx-10 my-[113px] flex flex-col gap-y-14">
+      <main className="relative md:mx-10 my-[113px] flex flex-col gap-y-14">
         {children}
       </main>
       <Footer/>

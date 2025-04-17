@@ -73,7 +73,7 @@ export const HeroSection = () => {
           hadir untuk memenuhi kebutuhan Anda dengan produk dan layanan
           berkualitas tinggi.
         </p>
-        <div className="flex items-center gap-x-4">
+        <div className="flex items-center justify-center md:justify-start gap-x-4">
           <Button
             size="md"
             onClick={() => {
