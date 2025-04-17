@@ -18,15 +18,13 @@ export async function POST(request: NextRequest) {
     const confirmToken = token === process.env.PASSWORD_RESET_PARAM;
 
     if (!confirmToken) {
-      return (
-        new Response(
-          JSON.stringify({
-            code: 400,
-            message: "Invalid link",
-            data: null,
-          }),
-        ),
-        { status: 400 }
+      return new Response(
+        JSON.stringify({
+          code: 400,
+          message: "Invalid token",
+          data: null,
+        }),
+        { status: 400 },
       );
     }
 
